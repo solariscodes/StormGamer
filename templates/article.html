@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ article.title if article.title else 'Article' }} - StormGamer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/article.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <div class="logo">
+                <a href="/" class="logo-link">
+                    <i class="fas fa-bolt"></i>
+                    <h1>StormGamer</h1>
+                </a>
+            </div>
+            <p class="tagline">Your Ultimate Gaming News Source</p>
+        </div>
+        <nav>
+            <ul>
+                <li class="active"><a href="/"><i class="fas fa-newspaper"></i> News</a></li>
+                <li><a href="#"><i class="fas fa-gamepad"></i> Games</a></li>
+                <li><a href="#"><i class="fas fa-trophy"></i> Reviews</a></li>
+                <li><a href="#"><i class="fas fa-video"></i> Videos</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <div class="article-container">
+            <article class="full-article">
+                <div class="article-meta">
+                    <a href="/" class="back-button"><i class="fas fa-arrow-left"></i> Back to News</a>
+                    <div class="article-date">
+                        {% if article.date %}
+                            <i class="far fa-calendar-alt"></i> {{ article.date }}
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <h1 class="article-title">{{ article.title }}</h1>
+                
+                <div class="article-hero">
+                    {% if article.full_image_url %}
+                        <img src="{{ article.full_image_url }}" alt="{{ article.title }}" class="article-image">
+                    {% else %}
+                        <img src="https://via.placeholder.com/1200x600?text=StormGamer" alt="{{ article.title }}" class="article-image">
+                    {% endif %}
+                </div>
+                
+                <div class="article-content">
+                    {% if article.formatted_content %}
+                        {{ article.formatted_content | safe }}
+                    {% elif article.content %}
+                        <p>{{ article.content }}</p>
+                    {% else %}
+                        <p>No content available for this article.</p>
+                    {% endif %}
+                </div>
+                
+                <div class="article-footer">
+                    <div class="share-buttons">
+                        <span>Share this article:</span>
+                        <a href="#" class="share-icon"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="share-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="share-icon"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="share-icon"><i class="fab fa-reddit-alien"></i></a>
+                    </div>
+                    
+                    <div class="tags">
+                        <span>Tags:</span>
+                        <a href="#" class="tag">Gaming</a>
+                        <a href="#" class="tag">News</a>
+                        {% if article.category %}
+                            <a href="#" class="tag">{{ article.category }}</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </article>
+            
+            <div class="homepage-sidebar">
+                <div class="ad-space">
+                    <h3>Promote Here</h3>
+                    <div class="ad-placeholder">
+                        <i class="fas fa-ad"></i>
+                        <p>Your Advertisement Could Be Here</p>
+                        <a href="#" class="ad-cta-button">Contact Us</a>
+                    </div>
+                </div>
+                
+                <div class="editorial-section">
+                    <h3>Editorial Team</h3>
+                    <div class="team-grid">
+                        {% for member in editorial_team %}
+                        <div class="team-member-card">
+                            <div class="team-member-photo">
+                                <img src="{{ url_for('static', filename='images/team/placeholder-' + loop.index|string + '.jpg') }}" alt="{{ member.name }}">
+                            </div>
+                            <div class="team-member-details">
+                                <h4>{{ member.name }}</h4>
+                                <span class="team-member-role">{{ member.role }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <i class="fas fa-bolt"></i>
+                <h2>StormGamer</h2>
+            </div>
+            <div class="social-links">
+                <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-discord"></i></a>
+            </div>
+            <p>&copy; 2025 StormGamer. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
