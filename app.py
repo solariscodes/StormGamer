@@ -1,7 +1,23 @@
 from flask import Flask, render_template, jsonify, request, abort
 import requests
+import os
+from admin import admin_bp, log_request
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
+
+# Register the admin blueprint
+app.register_blueprint(admin_bp)
+
+# Set a default admin key if not provided in environment
+if 'ADMIN' not in os.environ:
+    os.environ['ADMIN'] = 'stormgamer_admin_key'  # Default key for development
+
+# Log all requests
+@app.before_request
+def before_request():
+    # Skip logging for static files
+    if not request.path.startswith('/static/'):
+        log_request(request)
 
 API_BASE_URL = "https://web-production-cfff.up.railway.app"
 ARTICLES_ENDPOINT = f"{API_BASE_URL}/articles"
