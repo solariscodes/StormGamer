@@ -228,7 +228,7 @@
                         <td class="log-timestamp">{{ log.timestamp|default('-') }}</td>
                         <td class="log-method">{{ log.method|default('-') }}</td>
                         <td class="log-path">{{ log.path|default('-') }}{% if log.args %}<small>?{{ log.args }}</small>{% endif %}</td>
-                        <td>{{ log.remote_addr|default('-') }}</td>
+                        <td><strong>{{ log.remote_addr|default('-') }}</strong></td>
                         <td class="log-details" title="{{ log.user_agent|default('-') }}">{{ log.user_agent|default('-') }}</td>
                         <td class="log-details" title="{{ log.referrer|default('-') }}">{{ log.referrer|default('-') }}</td>
                     </tr>

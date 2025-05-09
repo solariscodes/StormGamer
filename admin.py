@@ -16,7 +16,13 @@ class RequestLog:
         self.path = getattr(request, 'path', 'UNKNOWN')
         self.args = dict(request.args) if hasattr(request, 'args') else {}
         self.form = dict(request.form) if hasattr(request, 'form') and request.form else None
-        self.remote_addr = getattr(request, 'remote_addr', 'UNKNOWN')
+        # Get the real IP address from proxy headers
+        if hasattr(request, 'headers') and request.headers.get('X-Forwarded-For'):
+            self.remote_addr = request.headers.get('X-Forwarded-For').split(',')[0].strip()
+        elif hasattr(request, 'headers') and request.headers.get('X-Real-IP'):
+            self.remote_addr = request.headers.get('X-Real-IP')
+        else:
+            self.remote_addr = getattr(request, 'remote_addr', 'UNKNOWN')
         
         # Handle user agent safely
         if hasattr(request, 'user_agent') and request.user_agent:
