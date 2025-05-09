@@ -149,20 +149,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.querySelector('.search-bar input');
     const searchButton = document.querySelector('.search-bar button');
     
-    searchButton.addEventListener('click', handleSearch);
-    searchInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            handleSearch();
-        }
-    });
+    // The search form now submits directly to the backend
+    // No need to handle it with JavaScript anymore
     
-    function handleSearch() {
-        // This is a placeholder for search functionality
-        // You can implement actual search in the future
-        const searchTerm = searchInput.value.trim();
-        if (searchTerm) {
-            alert('Search functionality to be implemented in the future!');
-        }
+    // Add event listener for mobile search toggle if needed
+    if (document.querySelector('.mobile-search-toggle')) {
+        document.querySelector('.mobile-search-toggle').addEventListener('click', function() {
+            document.querySelector('.search-container').classList.toggle('active');
+        });
     }
     
     // Function to load an article without full page reload

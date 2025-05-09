@@ -130,7 +130,21 @@
             </div>
             
             {% if articles %}
-                <div class="news-grid">
+                <style>
+                    .search-results-grid {
+                        display: grid;
+                        grid-template-columns: repeat(2, 1fr);
+                        gap: 20px;
+                        margin-bottom: 2rem;
+                    }
+                    
+                    @media (max-width: 768px) {
+                        .search-results-grid {
+                            grid-template-columns: 1fr;
+                        }
+                    }
+                </style>
+                <div class="search-results-grid">
                     {% for article in articles %}
                         <div class="news-card" data-article-id="{{ article.id }}">
                             <div class="news-img-container">
