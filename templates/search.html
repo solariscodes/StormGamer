@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results for "{{ query }}" - StormGamer</title>
+    <!-- Simple SVG favicon that will work reliably -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon/favicon.svg') }}" type="image/svg+xml">
+    <link rel="alternate icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}" type="image/x-icon">
+    <meta name="theme-color" content="#ff005c">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        .search-results-header {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .search-results-header h2 {
+            margin-bottom: 0.5rem;
+            color: var(--light-text);
+        }
+        
+        .search-results-header p {
+            color: var(--gray-text);
+        }
+        
+        .search-query {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        
+        .no-results i {
+            font-size: 3rem;
+            color: var(--gray-text);
+            margin-bottom: 1rem;
+        }
+        
+        .no-results h3 {
+            margin-bottom: 1rem;
+            color: var(--light-text);
+        }
+        
+        .no-results p {
+            color: var(--gray-text);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .search-suggestions {
+            margin-top: 2rem;
+        }
+        
+        .search-suggestions h4 {
+            margin-bottom: 1rem;
+            color: var(--secondary-color);
+        }
+        
+        .search-suggestions ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+        
+        .search-suggestions li a {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            color: var(--light-text);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .search-suggestions li a:hover {
+            background-color: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <a href="/" class="logo-link">
+                <div class="logo">
+                    <i class="fas fa-bolt"></i>
+                    <h1>StormGamer</h1>
+                </div>
+            </a>
+            <p class="tagline">Your Ultimate Gaming News Source</p>
+            <div class="search-container">
+                <form action="/search" method="get" id="search-form">
+                    <input type="text" name="q" id="search-input" placeholder="Search for gaming news..." required value="{{ query }}">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="/"><i class="fas fa-newspaper"></i> News</a></li>
+                <li><a href="#"><i class="fas fa-gamepad"></i> Games</a></li>
+                <li><a href="#"><i class="fas fa-trophy"></i> Reviews</a></li>
+                <li><a href="#"><i class="fas fa-video"></i> Videos</a></li>
+                <li><a href="#"><i class="fas fa-user"></i> Login</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <div class="container">
+            <div class="search-results-header">
+                <h2>Search Results</h2>
+                <p>Showing results for <span class="search-query">"{{ query }}"</span></p>
+            </div>
+            
+            {% if articles %}
+                <div class="news-grid">
+                    {% for article in articles %}
+                        <div class="news-card" data-article-id="{{ article.id }}">
+                            <div class="news-img-container">
+                                <img src="{{ article.full_image_url if article.full_image_url else 'https://via.placeholder.com/400x200?text=StormGamer' }}" 
+                                     alt="{{ article.title }}" class="news-img" 
+                                     onerror="this.src='https://via.placeholder.com/400x200?text=StormGamer'">
+                                <div class="news-overlay">
+                                    <span class="read-more">Read More</span>
+                                </div>
+                            </div>
+                            <div class="news-content">
+                                <h3 class="news-title">{{ article.title }}</h3>
+                                <div class="news-meta">
+                                    <span class="news-date">{{ article.date if article.date else 'Editorial' }}</span>
+                                    <span class="news-author">{{ article.author if article.author else 'Editorial' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-results">
+                    <i class="fas fa-search"></i>
+                    <h3>No Results Found</h3>
+                    <p>We couldn't find any articles matching your search for "{{ query }}".</p>
+                    
+                    <div class="search-suggestions">
+                        <h4>Try searching for:</h4>
+                        <ul>
+                            <li><a href="/search?q=games">games</a></li>
+                            <li><a href="/search?q=playstation">playstation</a></li>
+                            <li><a href="/search?q=xbox">xbox</a></li>
+                            <li><a href="/search?q=nintendo">nintendo</a></li>
+                            <li><a href="/search?q=pc">pc gaming</a></li>
+                            <li><a href="/search?q=esports">esports</a></li>
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+    
+    <footer>
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-logo">
+                    <h2>StormGamer</h2>
+                    <p>Your Ultimate Gaming News Source</p>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="footer-section">
+                        <h3>Categories</h3>
+                        <ul>
+                            <li><a href="#">PC Gaming</a></li>
+                            <li><a href="#">Console Gaming</a></li>
+                            <li><a href="#">Mobile Gaming</a></li>
+                            <li><a href="#">eSports</a></li>
+                            <li><a href="#">Industry News</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-section">
+                        <h3>About Us</h3>
+                        <ul>
+                            <li><a href="#">Our Team</a></li>
+                            <li><a href="#">Contact Us</a></li>
+                            <li><a href="#">Advertise</a></li>
+                            <li><a href="#">Privacy Policy</a></li>
+                            <li><a href="#">Terms of Service</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-section">
+                        <h3>Connect</h3>
+                        <div class="social-icons">
+                            <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                            <a href="#" class="social-icon"><i class="fab fa-facebook"></i></a>
+                            <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                            <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+                            <a href="#" class="social-icon"><i class="fab fa-discord"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 StormGamer. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

@@ -219,6 +219,50 @@ def get_articles():
     
     return jsonify([])
 
+@app.route('/search')
+def search():
+    # Get the search query from the request
+    query = request.args.get('q', '').strip().lower()
+    
+    if not query:
+        return redirect('/')
+    
+    # Call the external API to get all articles
+    response = requests.get(ARTICLES_ENDPOINT)
+    
+    if response.status_code != 200:
+        return render_template('search.html', query=query, articles=[], editorial_team=EDITORIAL_TEAM)
+    
+    data = response.json()
+    
+    # Get the list of articles
+    if isinstance(data, list):
+        articles = data
+    elif isinstance(data, dict) and 'articles' in data:
+        articles = data['articles']
+    else:
+        articles = []
+    
+    # Filter articles based on the search query
+    search_results = []
+    for article in articles:
+        if not isinstance(article, dict):
+            continue
+            
+        # Add full image URL if local path exists
+        if 'local_image_path' in article:
+            article['full_image_url'] = f"{API_BASE_URL}/{article['local_image_path']}"
+        
+        # Check if the query appears in the title, content, or author
+        title = article.get('title', '').lower()
+        content = article.get('content', '').lower()
+        author = article.get('author', '').lower()
+        
+        if query in title or query in content or query in author:
+            search_results.append(article)
+    
+    return render_template('search.html', query=query, articles=search_results, editorial_team=EDITORIAL_TEAM)
+
 if __name__ == '__main__':
     import os
     port = int(os.environ.get('PORT', 5000))

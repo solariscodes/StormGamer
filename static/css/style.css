@@ -70,6 +70,60 @@ h1 {
     font-style: italic;
     color: var(--gray-text);
     margin-top: -5px;
+    margin-bottom: 15px;
+}
+
+.search-container {
+    width: 100%;
+    max-width: 500px;
+    margin: 10px auto;
+}
+
+.search-container form {
+    display: flex;
+    position: relative;
+}
+
+.search-container input {
+    width: 100%;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 25px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--light-text);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.search-container input:focus {
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 10px rgba(255, 0, 92, 0.3);
+}
+
+.search-container button {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--accent-color);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px 10px;
+    transition: all 0.3s ease;
+}
+
+.search-container button:hover {
+    color: var(--secondary-color);
+}
+
+.search-container input::placeholder {
+    color: var(--gray-text);
+    opacity: 0.7;
 }
 
 nav ul {
