@@ -123,18 +123,6 @@ main {
     }
 }
 
-@media (max-width: 768px) {
-    .main-content {
-        grid-template-columns: 1fr;
-    }
-    
-    .homepage-sidebar {
-        display: block;
-        width: 100%;
-        margin-top: 2rem;
-    }
-}
-
 .hero {
     padding: 2rem 1rem;
     text-align: center;
@@ -363,9 +351,6 @@ footer p {
 /* Homepage Sidebar Styles */
 .homepage-sidebar {
     align-self: start;
-    display: block !important;
-    position: sticky;
-    top: 100px;
 }
 
 /* Ad Space Styles */
@@ -373,12 +358,9 @@ footer p {
     background-color: var(--card-bg);
     border-radius: 8px;
     padding: 1.5rem;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     margin-bottom: 2rem;
     text-align: center;
-    border: 2px solid var(--secondary-color);
-    position: relative;
-    z-index: 10;
 }
 
 .ad-placeholder {
