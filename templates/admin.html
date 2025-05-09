@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StormGamer - Admin Panel</title>
-    <!-- Base64 encoded favicons to ensure they display properly -->
-    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAQAAMMOAADDDgAAAAAAAAAAAAD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAA==">
-    <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAA30lEQVRYhe2XMQ6CQBBFn8baA3ABvQEn0VjZ2dDQWVhZcgJO4A28gXfQM1BbWPAtiAkLLMvOoMm8ZJPdmcn82dnZBUVRYqaBiAYDcAQuwBl4IKJXQPwMHIAWaIGjiFZIABFtgRuwWRCagAuwE9EsJdADzoHYHrj+LbCUU+gCvnMCdVTBhMBmZcHaAhvXhWVZ4jKZTELjXddRFAVlWZIkCWmaEscxURSZYpumoa5r6rqmKAryPCfLMrIsM8Xe7/dP7DAM5HlOmqaEYWiKHcfRFDsMA03T/O4XUBTFyhtU4o9PYjiVhwAAAABJRU5ErkJggg==">
-    <link rel="icon" type="image/png" sizes="16x16" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAAAqklEQVQ4je2TMQrCQBBFn8FWa+0CXsAbeAev4CU8h5W1jZ21pZ21pRcQPIJ38AZewCsELCzMtyBBsthkE0Hww8DCzP5/Z3YWEolEJGbAFrgCZ+ACbIAiMH8GDkADNMBeRCvPXEQroAJWwNwztgQuwE5Es1DAHtgHYmvg6gqYhDYIEQHT0AYfC0ziCvjOBcRRwRcCi5EFx1jA3HVRliUu4zgGxnddR1EU/+cXJBKJyLwBLYePT8p+8IQAAAAASUVORK5CYII=">
-    <link rel="manifest" href="{{ url_for('static', filename='favicon/site.webmanifest') }}">
+    <!-- Simple SVG favicon that will work reliably -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon/favicon.svg') }}" type="image/svg+xml">
+    <link rel="alternate icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}" type="image/x-icon">
     <meta name="theme-color" content="#6a0dad">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -207,7 +205,10 @@
         
         <div class="log-controls">
             <h3><i class="fas fa-list"></i> HTTP Request Logs</h3>
-            <a href="{{ url_for('admin.admin_panel', key=admin_key, clear=1) }}" class="btn btn-danger" onclick="return confirm('Are you sure you want to clear all logs?')"><i class="fas fa-trash"></i> Clear Logs</a>
+            <div>
+                <a href="{{ url_for('admin.admin_panel', key=admin_key) }}" class="btn"><i class="fas fa-sync-alt"></i> Refresh Logs</a>
+                <a href="{{ url_for('admin.admin_panel', key=admin_key, clear=1) }}" class="btn btn-danger" onclick="return confirm('Are you sure you want to clear all logs?')"><i class="fas fa-trash"></i> Clear Logs</a>
+            </div>
         </div>
         
         {% if logs %}
