@@ -12,13 +12,19 @@ MAX_LOGS = 1000  # Maximum number of logs to store
 class RequestLog:
     def __init__(self, request, timestamp=None):
         self.timestamp = timestamp or datetime.now()
-        self.method = request.method
-        self.path = request.path
-        self.args = dict(request.args)
-        self.form = dict(request.form) if request.form else None
-        self.remote_addr = request.remote_addr
-        self.user_agent = request.user_agent.string
-        self.referrer = request.referrer
+        self.method = getattr(request, 'method', 'UNKNOWN')
+        self.path = getattr(request, 'path', 'UNKNOWN')
+        self.args = dict(request.args) if hasattr(request, 'args') else {}
+        self.form = dict(request.form) if hasattr(request, 'form') and request.form else None
+        self.remote_addr = getattr(request, 'remote_addr', 'UNKNOWN')
+        
+        # Handle user agent safely
+        if hasattr(request, 'user_agent') and request.user_agent:
+            self.user_agent = getattr(request.user_agent, 'string', str(request.user_agent))
+        else:
+            self.user_agent = 'UNKNOWN'
+            
+        self.referrer = getattr(request, 'referrer', None)
 
     def to_dict(self):
         return {
@@ -69,7 +75,7 @@ def admin_panel():
     server_info = {
         'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         'python_version': os.sys.version,
-        'flask_version': current_app.version,
+        'flask_version': getattr(current_app, 'version', 'Unknown'),
         'request_count': len(http_logs),
     }
     

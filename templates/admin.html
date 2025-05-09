@@ -225,12 +225,12 @@
                 <tbody>
                     {% for log in logs %}
                     <tr>
-                        <td class="log-timestamp">{{ log.timestamp }}</td>
-                        <td class="log-method">{{ log.method }}</td>
-                        <td class="log-path">{{ log.path }}{% if log.args %}<small>?{{ log.args }}</small>{% endif %}</td>
-                        <td>{{ log.remote_addr }}</td>
-                        <td class="log-details" title="{{ log.user_agent }}">{{ log.user_agent }}</td>
-                        <td class="log-details" title="{{ log.referrer }}">{{ log.referrer or '-' }}</td>
+                        <td class="log-timestamp">{{ log.timestamp|default('-') }}</td>
+                        <td class="log-method">{{ log.method|default('-') }}</td>
+                        <td class="log-path">{{ log.path|default('-') }}{% if log.args %}<small>?{{ log.args }}</small>{% endif %}</td>
+                        <td>{{ log.remote_addr|default('-') }}</td>
+                        <td class="log-details" title="{{ log.user_agent|default('-') }}">{{ log.user_agent|default('-') }}</td>
+                        <td class="log-details" title="{{ log.referrer|default('-') }}">{{ log.referrer|default('-') }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
