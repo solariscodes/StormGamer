@@ -183,7 +183,11 @@ def calculate_statistics(logs):
 def admin_api_stats():
     """API endpoint to get statistics in JSON format"""
     # Get the admin key from environment variable
-    admin_key = os.environ.get('ADMIN', 'default_key_for_development')
+    admin_key = os.environ.get('ADMIN')
+    
+    # If ADMIN environment variable is not set, deny access
+    if not admin_key:
+        abort(403)  # Forbidden
     
     # Check if the key parameter matches the environment variable
     if request.args.get('key') != admin_key:
@@ -198,7 +202,11 @@ def admin_api_stats():
 def admin_panel():
     """Admin panel to view HTTP logs"""
     # Get the admin key from environment variable
-    admin_key = os.environ.get('ADMIN', 'default_key_for_development')
+    admin_key = os.environ.get('ADMIN')
+    
+    # If ADMIN environment variable is not set, deny access
+    if not admin_key:
+        abort(403)  # Forbidden
     
     # Check if the key parameter matches the environment variable
     if request.args.get('key') != admin_key:
@@ -241,7 +249,11 @@ def admin_panel():
 def clear_logs():
     """API endpoint to clear logs"""
     # Get the admin key from environment variable
-    admin_key = os.environ.get('ADMIN', 'default_key_for_development')
+    admin_key = os.environ.get('ADMIN')
+    
+    # If ADMIN environment variable is not set, deny access
+    if not admin_key:
+        return jsonify({'success': False, 'error': 'Unauthorized'}), 403
     
     # Check if the key parameter matches the environment variable
     if request.args.get('key') != admin_key:
