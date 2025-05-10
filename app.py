@@ -8,9 +8,8 @@ app = Flask(__name__, static_folder='static', template_folder='templates')
 # Register the admin blueprint
 app.register_blueprint(admin_bp)
 
-# Set a default admin key if not provided in environment
-if 'ADMIN' not in os.environ:
-    os.environ['ADMIN'] = 'stormgamer_admin_key'  # Default key for development
+# ADMIN key must be set as an environment variable
+# No default key for security reasons
 
 # Log all requests
 @app.before_request
