@@ -1,4 +1,36 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = themeToggle.querySelector('i');
+    const themeText = document.getElementById('theme-text');
+    
+    // Check for saved theme preference or use default dark theme
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+    
+    // Toggle theme when button is clicked
+    themeToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        setTheme(newTheme);
+        localStorage.setItem('theme', newTheme);
+    });
+    
+    // Function to set the theme
+    function setTheme(theme) {
+        if (theme === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            themeIcon.className = 'fas fa-sun';
+            themeText.textContent = 'Dark Mode';
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+            themeIcon.className = 'fas fa-moon';
+            themeText.textContent = 'Light Mode';
+        }
+    }
+    
     // Variables for infinite scrolling
     let currentPage = 1;
     const perPage = 10;

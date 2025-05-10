@@ -3,16 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StormGamer - Admin Panel</title>
-    <!-- Simple SVG favicon that will work reliably -->
+    <title>StormGamer - Admin Dashboard</title>
+    <!-- Favicon -->
     <link rel="icon" href="{{ url_for('static', filename='favicon/favicon.svg') }}" type="image/svg+xml">
     <link rel="alternate icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}" type="image/x-icon">
     <meta name="theme-color" content="#ff005c">
+    
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
         .admin-container {
             max-width: 1200px;
@@ -52,6 +59,12 @@
             background-color: var(--darker-bg);
             padding: 0.5rem;
             border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .info-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         
         .info-item span {
@@ -62,6 +75,99 @@
         .info-item strong {
             color: var(--light-text);
             display: block;
+            font-size: 1.2rem;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stats-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stats-card h3 {
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .data-table th, .data-table td {
+            padding: 0.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--darker-bg);
+        }
+        
+        .data-table th {
+            color: var(--secondary-color);
+            background-color: var(--darker-bg);
+        }
+        
+        .data-table tr:hover {
+            background-color: var(--card-hover-bg);
+        }
+        
+        .tab-container {
+            margin-bottom: 2rem;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid var(--darker-bg);
+            margin-bottom: 1rem;
+        }
+        
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            color: var(--gray-text);
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            color: var(--secondary-color);
+            border-bottom-color: var(--secondary-color);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            background-color: var(--primary-color);
+            color: white;
         }
         
         .log-controls {
@@ -160,29 +266,177 @@
             background-color: var(--card-bg);
             border-radius: 8px;
         }
+        
+        .dashboard-container {
+            display: flex;
+            flex-direction: row;
+            height: 100vh;
+        }
+        
+        .sidebar {
+            background-color: var(--darker-bg);
+            color: var(--light-text);
+            padding: 1rem;
+            width: 250px;
+            height: 100%;
+            position: sticky;
+            top: 0;
+        }
+        
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .sidebar-logo i {
+            font-size: 1.5rem;
+        }
+        
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+        
+        .nav-section-title {
+            color: var(--gray-text);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            text-decoration: none;
+            color: var(--light-text);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            background-color: var(--card-bg);
+        }
+        
+        .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
     </style>
 </head>
 <body>
-    <header>
-        <div class="logo-container">
-            <a href="/" class="logo-link">
-                <div class="logo">
-                    <i class="fas fa-bolt"></i>
-                    <h1>StormGamer</h1>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <i class="fas fa-bolt fa-lg"></i>
+                    <span>StormGamer</span>
                 </div>
-            </a>
-            <p class="tagline">Admin Control Panel</p>
-        </div>
-    </header>
-
-    <div class="admin-container">
-        <div class="admin-header">
-            <h2><i class="fas fa-shield-alt"></i> Admin Panel</h2>
-            <a href="/" class="btn"><i class="fas fa-home"></i> Back to Site</a>
-        </div>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Dashboard</div>
+                <ul class="sidebar-nav">
+                    <li class="nav-item">
+                        <a href="#traffic" class="nav-link active" data-tab="traffic">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Traffic Analysis</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#visitors" class="nav-link" data-tab="visitors">
+                            <i class="fas fa-users"></i>
+                            <span>Visitor Data</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Analytics</div>
+                <ul class="sidebar-nav">
+                    <li class="nav-item">
+                        <a href="#pages" class="nav-link" data-tab="pages">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Page Analytics</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tech" class="nav-link" data-tab="tech">
+                            <i class="fas fa-laptop-code"></i>
+                            <span>Tech Data</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">System</div>
+                <ul class="sidebar-nav">
+                    <li class="nav-item">
+                        <a href="#logs" class="nav-link" data-tab="logs">
+                            <i class="fas fa-list"></i>
+                            <span>Request Logs</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/" class="nav-link">
+                            <i class="fas fa-home"></i>
+                            <span>Back to Site</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="dashboard-header">
+                <h1 class="page-title"><i class="fas fa-shield-alt"></i> Admin Dashboard</h1>
+                <div class="header-actions">
+                    <button class="btn btn-outline" id="refresh-stats">
+                        <i class="fas fa-sync-alt"></i> Refresh Data
+                    </button>
+                </div>
+            </div>
         
         <div class="server-info">
-            <h3>Server Information</h3>
+            <h3><i class="fas fa-server"></i> Server Information</h3>
             <div class="info-grid">
                 <div class="info-item">
                     <span>Server Time</span>
@@ -199,6 +453,194 @@
                 <div class="info-item">
                     <span>Total Requests</span>
                     <strong>{{ server_info.request_count }}</strong>
+                </div>
+                <div class="info-item">
+                    <span>Unique IPs</span>
+                    <strong>{{ server_info.unique_ips }}</strong>
+                </div>
+                <div class="info-item">
+                    <span>Unique User Agents</span>
+                    <strong>{{ server_info.unique_user_agents }}</strong>
+                </div>
+                <div class="info-item">
+                    <span>Most Visited Page</span>
+                    <strong title="{{ server_info.most_visited_page }}">{{ server_info.most_visited_page|truncate(20) }}</strong>
+                </div>
+                <div class="info-item">
+                    <span>Most Active IP</span>
+                    <strong>{{ server_info.most_active_ip }}</strong>
+                </div>
+                <div class="info-item">
+                    <span>Requests Today</span>
+                    <strong>{{ server_info.requests_today }}</strong>
+                </div>
+                <div class="info-item">
+                    <span>Requests This Hour</span>
+                    <strong>{{ server_info.requests_this_hour }}</strong>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-container">
+            <div class="tabs">
+                <div class="tab active" data-tab="traffic"><i class="fas fa-chart-line"></i> Traffic Analysis</div>
+                <div class="tab" data-tab="visitors"><i class="fas fa-users"></i> Visitor Data</div>
+                <div class="tab" data-tab="pages"><i class="fas fa-file-alt"></i> Page Analytics</div>
+                <div class="tab" data-tab="tech"><i class="fas fa-laptop-code"></i> Technical Data</div>
+            </div>
+            
+            <div class="tab-content active" id="traffic-tab">
+                <div class="stats-container">
+                    <div class="stats-card">
+                        <h3><i class="fas fa-clock"></i> Hourly Traffic (Last 24 Hours)</h3>
+                        <div class="chart-container">
+                            <canvas id="hourlyChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-card">
+                        <h3><i class="fas fa-calendar-day"></i> Daily Traffic (Last 30 Days)</h3>
+                        <div class="chart-container">
+                            <canvas id="dailyChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-card">
+                        <h3><i class="fas fa-hourglass-half"></i> Traffic by Hour of Day</h3>
+                        <div class="chart-container">
+                            <canvas id="hourOfDayChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-card">
+                        <h3><i class="fas fa-exchange-alt"></i> HTTP Methods Distribution</h3>
+                        <div class="chart-container">
+                            <canvas id="methodsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="visitors-tab">
+                <div class="stats-container">
+                    <div class="stats-card">
+                        <h3><i class="fas fa-map-marker-alt"></i> Top IP Addresses</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>IP Address</th>
+                                    <th>Request Count</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ip, count in stats.top_ips %}
+                                <tr>
+                                    <td>{{ ip }}</td>
+                                    <td>{{ count }}</td>
+                                    <td>{{ ((count / server_info.request_count) * 100)|round(1) }}%</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="stats-card">
+                        <h3><i class="fas fa-globe"></i> Top Referrers</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Referrer</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for referrer, count in stats.referrer_distribution.items() %}
+                                <tr>
+                                    <td title="{{ referrer }}">{{ referrer|truncate(40) }}</td>
+                                    <td>{{ count }}</td>
+                                </tr>
+                                {% endfor %}
+                                {% if not stats.referrer_distribution %}
+                                <tr>
+                                    <td colspan="2">No referrer data available</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="stats-card">
+                        <h3><i class="fas fa-laptop"></i> User Agents</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>User Agent</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ua, count in stats.top_user_agents %}
+                                <tr>
+                                    <td title="{{ ua }}">{{ ua|truncate(40) }}</td>
+                                    <td>{{ count }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="pages-tab">
+                <div class="stats-container">
+                    <div class="stats-card">
+                        <h3><i class="fas fa-file"></i> Most Visited Pages</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Path</th>
+                                    <th>Visits</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for path, count in stats.top_paths %}
+                                <tr>
+                                    <td title="{{ path }}">{{ path|truncate(40) }}</td>
+                                    <td>{{ count }}</td>
+                                    <td>{{ ((count / server_info.request_count) * 100)|round(1) }}%</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="tech-tab">
+                <div class="stats-container">
+                    <div class="stats-card">
+                        <h3><i class="fas fa-code"></i> HTTP Methods</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Method</th>
+                                    <th>Count</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for method, count in stats.method_distribution.items() %}
+                                <tr>
+                                    <td>{{ method }}</td>
+                                    <td>{{ count }}</td>
+                                    <td>{{ ((count / server_info.request_count) * 100)|round(1) }}%</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -260,5 +702,181 @@
             </div>
         </div>
     </footer>
+    
+    <script>
+        // Tab functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and content
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab + '-tab').classList.add('active');
+            });
+        });
+        
+        // Chart.js initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set Chart.js defaults
+            Chart.defaults.color = '#b0b0b0';
+            Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+            
+            // Hourly traffic chart
+            const hourlyData = {{ stats.hourly_requests|tojson }};
+            if (hourlyData.length > 0) {
+                new Chart(document.getElementById('hourlyChart'), {
+                    type: 'line',
+                    data: {
+                        labels: hourlyData.map(item => item.time.split(' ')[1]),
+                        datasets: [{
+                            label: 'Requests',
+                            data: hourlyData.map(item => item.count),
+                            borderColor: '#ff005c',
+                            backgroundColor: 'rgba(255, 0, 92, 0.2)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(tooltipItems) {
+                                        return hourlyData[tooltipItems[0].dataIndex].time;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Daily traffic chart
+            const dailyData = {{ stats.daily_requests|tojson }};
+            if (dailyData.length > 0) {
+                new Chart(document.getElementById('dailyChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: dailyData.map(item => item.date.split('-').slice(1).join('/')),
+                        datasets: [{
+                            label: 'Requests',
+                            data: dailyData.map(item => item.count),
+                            backgroundColor: '#00a2ff',
+                            borderColor: '#0080cc',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(tooltipItems) {
+                                        return dailyData[tooltipItems[0].dataIndex].date;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Traffic by hour of day
+            const hourOfDayData = {{ stats.traffic_by_hour|tojson }};
+            const hourLabels = Array.from({length: 24}, (_, i) => i + ':00');
+            
+            new Chart(document.getElementById('hourOfDayChart'), {
+                type: 'bar',
+                data: {
+                    labels: hourLabels,
+                    datasets: [{
+                        label: 'Requests',
+                        data: hourOfDayData,
+                        backgroundColor: '#00cc66',
+                        borderColor: '#00994d',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // HTTP Methods chart
+            const methodsData = {{ stats.method_distribution|tojson }};
+            const methodLabels = Object.keys(methodsData);
+            const methodCounts = Object.values(methodsData);
+            const methodColors = {
+                'GET': '#4287f5',
+                'POST': '#42f5ad',
+                'PUT': '#f5d142',
+                'DELETE': '#f54242',
+                'HEAD': '#b042f5',
+                'OPTIONS': '#f542f2',
+                'PATCH': '#42f54e'
+            };
+            
+            new Chart(document.getElementById('methodsChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: methodLabels,
+                    datasets: [{
+                        data: methodCounts,
+                        backgroundColor: methodLabels.map(method => methodColors[method] || '#777777')
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>

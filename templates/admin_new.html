@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StormGamer - Admin Dashboard</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon/favicon.svg') }}" type="image/svg+xml">
+    <link rel="alternate icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}" type="image/x-icon">
+    <meta name="theme-color" content="#ff005c">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <i class="fas fa-bolt fa-lg"></i>
+                    <span>StormGamer</span>
+                </div>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Dashboard</div>
+                <ul class="sidebar-nav">
+                    <li class="nav-item">
+                        <a href="#overview" class="nav-link active" data-tab="overview">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Overview</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#traffic" class="nav-link" data-tab="traffic">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Traffic</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Analytics</div>
+                <ul class="sidebar-nav">
+                    <li class="nav-item">
+                        <a href="#visitors" class="nav-link" data-tab="visitors">
+                            <i class="fas fa-users"></i>
+                            <span>Visitors</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#pages" class="nav-link" data-tab="pages">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Pages</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tech" class="nav-link" data-tab="tech">
+                            <i class="fas fa-laptop-code"></i>
+                            <span>Tech Data</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">System</div>
+                <ul class="sidebar-nav">
+                    <li class="nav-item">
+                        <a href="#logs" class="nav-link" data-tab="logs">
+                            <i class="fas fa-list"></i>
+                            <span>Logs</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/" class="nav-link">
+                            <i class="fas fa-home"></i>
+                            <span>Back to Site</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Overview Section -->
+            <section id="overview" class="dashboard-section active">
+                <div class="dashboard-header">
+                    <h1 class="page-title"><i class="fas fa-tachometer-alt"></i> Dashboard Overview</h1>
+                    <div class="header-actions">
+                        <a href="{{ url_for('admin.admin_panel', key=key) }}" class="btn btn-outline">
+                            <i class="fas fa-sync-alt"></i> Refresh Data
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-title"><i class="fas fa-eye"></i> Total Visits</div>
+                        <div class="stat-value">{{ http_logs|length }}</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i> Active tracking
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title"><i class="fas fa-users"></i> Unique Visitors</div>
+                        <div class="stat-value">{{ stats.unique_ips_count }}</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i> From {{ stats.unique_ips_count }} IPs
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title"><i class="fas fa-clock"></i> Visits Today</div>
+                        <div class="stat-value">{{ stats.requests_today }}</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i> Last hour: {{ stats.requests_this_hour }}
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-title"><i class="fas fa-file-alt"></i> Most Visited Page</div>
+                        <div class="stat-value" style="font-size: 1.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ stats.most_visited_page }}</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i> Top traffic
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Traffic Chart -->
+                <div class="card mb-6">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-chart-line"></i> Traffic Overview</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="trafficChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Main Stats Grid -->
+                <div class="flex" style="gap: 1.5rem; flex-wrap: wrap;">
+                    <div class="card" style="flex: 1; min-width: 300px;">
+                        <div class="card-header">
+                            <h2 class="card-title"><i class="fas fa-map-marker-alt"></i> Top Visitors</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>IP Address</th>
+                                            <th>Visits</th>
+                                            <th>%</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for ip, count in stats.top_ips %}
+                                        <tr>
+                                            <td>{{ ip }}</td>
+                                            <td>{{ count }}</td>
+                                            <td>{{ (count / http_logs|length * 100)|round(1) }}%</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card" style="flex: 1; min-width: 300px;">
+                        <div class="card-header">
+                            <h2 class="card-title"><i class="fas fa-file-alt"></i> Popular Pages</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Page</th>
+                                            <th>Views</th>
+                                            <th>% Traffic</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for path, count in stats.top_paths %}
+                                        <tr>
+                                            <td title="{{ path }}">{{ path[:30] + '...' if path|length > 30 else path }}</td>
+                                            <td>{{ count }}</td>
+                                            <td>{{ (count / http_logs|length * 100)|round(1) }}%</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Traffic Section -->
+            <section id="traffic" class="dashboard-section">
+                <div class="dashboard-header">
+                    <h1 class="page-title"><i class="fas fa-chart-line"></i> Traffic Analysis</h1>
+                    <div class="header-actions">
+                        <a href="{{ url_for('admin.admin_panel', key=key) }}" class="btn btn-outline">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-calendar"></i> Daily Traffic</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="dailyTrafficChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-clock"></i> Hourly Distribution</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="hourlyTrafficChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Visitors Section -->
+            <section id="visitors" class="dashboard-section">
+                <div class="dashboard-header">
+                    <h1 class="page-title"><i class="fas fa-users"></i> Visitor Data</h1>
+                    <div class="header-actions">
+                        <a href="{{ url_for('admin.admin_panel', key=key) }}" class="btn btn-outline">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-map-marker-alt"></i> Top IP Addresses</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>IP Address</th>
+                                        <th>Visits</th>
+                                        <th>% of Traffic</th>
+                                        <th>First Seen</th>
+                                        <th>Last Seen</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for ip, count in stats.top_ips %}
+                                    <tr>
+                                        <td>{{ ip }}</td>
+                                        <td>{{ count }}</td>
+                                        <td>{{ (count / http_logs|length * 100)|round(1) }}%</td>
+                                        <td>N/A</td>
+                                        <td>N/A</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Pages Section -->
+            <section id="pages" class="dashboard-section">
+                <div class="dashboard-header">
+                    <h1 class="page-title"><i class="fas fa-file-alt"></i> Page Analytics</h1>
+                    <div class="header-actions">
+                        <a href="{{ url_for('admin.admin_panel', key=key) }}" class="btn btn-outline">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-list"></i> Top Pages</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Path</th>
+                                        <th>Views</th>
+                                        <th>% of Traffic</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for path, count in stats.top_paths %}
+                                    <tr>
+                                        <td title="{{ path }}">{{ path[:50] + '...' if path|length > 50 else path }}</td>
+                                        <td>{{ count }}</td>
+                                        <td>{{ (count / http_logs|length * 100)|round(1) }}%</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Tech Section -->
+            <section id="tech" class="dashboard-section">
+                <div class="dashboard-header">
+                    <h1 class="page-title"><i class="fas fa-laptop-code"></i> Tech Data</h1>
+                    <div class="header-actions">
+                        <a href="{{ url_for('admin.admin_panel', key=key) }}" class="btn btn-outline">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-code"></i> HTTP Methods</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container" style="height: 200px;">
+                            <canvas id="methodsChart"></canvas>
+                        </div>
+                        <div class="table-responsive" style="margin-top: 1rem;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Method</th>
+                                        <th>Count</th>
+                                        <th>%</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for method, count in stats.method_distribution.items() %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge badge-{% if method == 'GET' %}info{% elif method == 'POST' %}success{% elif method == 'DELETE' %}danger{% else %}warning{% endif %}">
+                                                {{ method }}
+                                            </span>
+                                        </td>
+                                        <td>{{ count }}</td>
+                                        <td>{{ (count / http_logs|length * 100)|round(1) }}%</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-browser"></i> User Agents</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>User Agent</th>
+                                        <th>Count</th>
+                                        <th>%</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user_agent, count in stats.top_user_agents %}
+                                    <tr>
+                                        <td title="{{ user_agent }}">{{ user_agent[:50] + '...' if user_agent|length > 50 else user_agent }}</td>
+                                        <td>{{ count }}</td>
+                                        <td>{{ (count / http_logs|length * 100)|round(1) }}%</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Logs Section -->
+            <section id="logs" class="dashboard-section">
+                <div class="dashboard-header">
+                    <h1 class="page-title"><i class="fas fa-list"></i> HTTP Request Logs</h1>
+                    <div class="header-actions">
+                        <a href="{{ url_for('admin.admin_panel', key=key) }}" class="btn btn-outline">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </a>
+                        <button class="btn btn-danger" id="clear-logs">
+                            <i class="fas fa-trash"></i> Clear Logs
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title"><i class="fas fa-history"></i> Recent Request Logs</h2>
+                        <div class="flex items-center gap-2">
+                            <select id="log-filter" class="btn btn-outline">
+                                <option value="all">All Methods</option>
+                                <option value="GET">GET</option>
+                                <option value="POST">POST</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="data-table" id="logs-table">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Method</th>
+                                        <th>Path</th>
+                                        <th>IP Address</th>
+                                        <th>User Agent</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="logs-body">
+                                    {% for log in http_logs|reverse %}
+                                    <tr data-method="{{ log.method }}">
+                                        <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                        <td>
+                                            <span class="badge badge-{% if log.method == 'GET' %}info{% elif log.method == 'POST' %}success{% elif log.method == 'DELETE' %}danger{% else %}warning{% endif %}">
+                                                {{ log.method }}
+                                            </span>
+                                        </td>
+                                        <td title="{{ log.path }}">{{ log.path[:30] + '...' if log.path|length > 30 else log.path }}</td>
+                                        <td>{{ log.remote_addr }}</td>
+                                        <td title="{{ log.user_agent }}">{{ log.user_agent[:30] + '...' if log.user_agent|length > 30 else log.user_agent }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab Navigation
+            const tabs = document.querySelectorAll('.nav-link[data-tab]');
+            const sections = document.querySelectorAll('.dashboard-section');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all tabs and sections
+                    tabs.forEach(t => t.classList.remove('active'));
+                    sections.forEach(s => s.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Show corresponding section
+                    const sectionId = this.getAttribute('data-tab');
+                    document.getElementById(sectionId).classList.add('active');
+                });
+            });
+            
+            // Traffic Chart
+            const trafficCtx = document.getElementById('trafficChart').getContext('2d');
+            
+            // Prepare chart labels and data
+            const hourlyLabels = [];
+            const hourlyDataPoints = [];
+            
+            {% for item in stats.hourly_requests %}
+                hourlyLabels.push('{{ item.time }}');
+                hourlyDataPoints.push({{ item.count }});
+            {% endfor %}
+            
+            // Create the chart with simpler data format
+            new Chart(trafficCtx, {
+                type: 'line',
+                data: {
+                    labels: hourlyLabels,
+                    datasets: [{
+                        label: 'Requests per Hour',
+                        data: hourlyDataPoints,
+                        borderColor: '#ff005c',
+                        backgroundColor: 'rgba(255, 0, 92, 0.1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#ff005c',
+                        pointBorderColor: '#fff',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    }
+                }
+            });
+            
+            // Daily Traffic Chart
+            if (document.getElementById('dailyTrafficChart')) {
+                const dailyCtx = document.getElementById('dailyTrafficChart').getContext('2d');
+                
+                // Prepare labels and data
+                const dailyLabels = [];
+                const dailyCounts = [];
+                
+                {% for item in stats.daily_requests %}
+                    dailyLabels.push('{{ item.date }}');
+                    dailyCounts.push({{ item.count }});
+                {% endfor %}
+                
+                new Chart(dailyCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: dailyLabels,
+                        datasets: [{
+                            label: 'Requests per Day',
+                            data: dailyCounts,
+                            backgroundColor: '#03dac6',
+                            borderColor: '#03dac6',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    maxRotation: 45,
+                                    minRotation: 45
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Hourly Distribution Chart
+            if (document.getElementById('hourlyTrafficChart')) {
+                const hourlyDistCtx = document.getElementById('hourlyTrafficChart').getContext('2d');
+                const hourlyDistData = [
+                    {% for count in stats.traffic_by_hour %}
+                    {{ count }}{% if not loop.last %},{% endif %}
+                    {% endfor %}
+                ];
+                
+                const hourLabels = Array.from({length: 24}, (_, i) => {
+                    const hour = i.toString().padStart(2, '0');
+                    return `${hour}:00`;
+                });
+                
+                new Chart(hourlyDistCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: hourLabels,
+                        datasets: [{
+                            label: 'Traffic by Hour of Day',
+                            data: hourlyDistData,
+                            backgroundColor: '#3b82f6',
+                            borderColor: '#3b82f6',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // HTTP Methods Chart
+            if (document.getElementById('methodsChart')) {
+                const methodsCtx = document.getElementById('methodsChart').getContext('2d');
+                const methodLabels = [];
+                const methodData = [];
+                const methodColors = {
+                    'GET': '#3b82f6',  // blue
+                    'POST': '#10b981', // green
+                    'PUT': '#f59e0b',  // amber
+                    'DELETE': '#ef4444', // red
+                    'HEAD': '#8b5cf6',  // violet
+                    'OPTIONS': '#6b7280', // gray
+                };
+                
+                {% for method, count in stats.method_distribution.items() %}
+                methodLabels.push('{{ method }}');
+                methodData.push({{ count }});
+                {% endfor %}
+                
+                const colors = methodLabels.map(method => methodColors[method] || '#6b7280');
+                
+                new Chart(methodsCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: methodLabels,
+                        datasets: [{
+                            data: methodData,
+                            backgroundColor: colors,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Refresh buttons
+            const refreshButtons = document.querySelectorAll('[id^="refresh-"]');
+            refreshButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.location.reload();
+                    console.log('Refreshing page...');
+                });
+            });
+            
+            // Make sure refresh-stats button works
+            const refreshStats = document.getElementById('refresh-stats');
+            if (refreshStats) {
+                refreshStats.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.location.reload();
+                    console.log('Refreshing stats...');
+                });
+            }
+            
+            // Clear logs button
+            document.getElementById('clear-logs').addEventListener('click', function() {
+                if (confirm('Are you sure you want to clear all logs?')) {
+                    fetch('/admin/clear-logs?key={{ key }}', {
+                        method: 'POST'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('logs-body').innerHTML = '';
+                            alert('Logs cleared successfully!');
+                        } else {
+                            alert('Failed to clear logs: ' + data.error);
+                        }
+                    })
+                    .catch(error => {
+                        alert('Error: ' + error);
+                    });
+                }
+            });
+            
+            // Log filter
+            const logFilter = document.getElementById('log-filter');
+            if (logFilter) {
+                logFilter.addEventListener('change', function() {
+                    const method = this.value;
+                    const rows = document.querySelectorAll('#logs-table tbody tr');
+                    
+                    rows.forEach(row => {
+                        const rowMethod = row.getAttribute('data-method');
+                        if (method === 'all' || rowMethod === method || (method === 'other' && rowMethod !== 'GET' && rowMethod !== 'POST')) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
