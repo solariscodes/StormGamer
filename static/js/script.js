@@ -37,6 +37,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let isLoading = false;
     let hasMoreItems = true;
     let isSingleArticleView = false;
+    let currentArticleId = null;
+    let cachedArticles = [];
     
     const newsContainer = document.getElementById('news-container');
     const mainContentArea = document.querySelector('.main-content');
@@ -196,6 +198,9 @@ document.addEventListener('DOMContentLoaded', function() {
         isLoading = true;
         showLoadingIndicator();
         
+        // Save the current article ID
+        currentArticleId = articleId;
+        
         // Save the current scroll position
         localStorage.setItem('scrollPosition', window.scrollY);
         
@@ -214,6 +219,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 hideLoadingIndicator();
                 displayArticle(article);
                 isLoading = false;
+                
+                // If we don't have cached articles yet, load some for the "Next Article" feature
+                if (cachedArticles.length === 0) {
+                    loadMoreArticles();
+                }
             })
             .catch(error => {
                 console.error('Error loading article:', error);
@@ -261,8 +271,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         <a href="#" class="share-icon"><i class="fab fa-twitter"></i></a>
                         <a href="#" class="share-icon"><i class="fab fa-facebook-f"></i></a>
                     </div>
-                    <a href="javascript:void(0)" onclick="showNewsList()" class="more-articles-link">
-                        <i class="fas fa-th-large"></i> More Articles
+                    <a href="javascript:void(0)" onclick="loadNextArticle()" class="more-articles-link">
+                        <i class="fas fa-arrow-right"></i> Next Article
                     </a>
                 </div>
             </div>
@@ -324,8 +334,82 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Function to go back to the news list
-    function showNewsList() {
+    // Load the next article in the sequence
+    window.loadNextArticle = function() {
+        if (isLoading) return;
+        
+        // If we have cached articles, use the next one
+        if (cachedArticles.length > 0) {
+            // Find the index of the current article
+            const currentIndex = cachedArticles.findIndex(article => article.id == currentArticleId);
+            
+            // If we found the current article and there's a next one
+            if (currentIndex !== -1 && currentIndex < cachedArticles.length - 1) {
+                // Load the next article
+                loadArticleContent(cachedArticles[currentIndex + 1].id);
+                return;
+            }
+            // If we're at the end of our cached articles, load more
+            else if (currentIndex === cachedArticles.length - 1) {
+                loadMoreArticles(function() {
+                    // After loading more, try again to get the next article
+                    if (cachedArticles.length > currentIndex + 1) {
+                        loadArticleContent(cachedArticles[currentIndex + 1].id);
+                    } else {
+                        // If there are no more articles, go back to the news list
+                        showNewsList();
+                    }
+                });
+                return;
+            }
+        }
+        
+        // If we don't have cached articles or couldn't find the current one, load more
+        loadMoreArticles(function() {
+            if (cachedArticles.length > 0) {
+                loadArticleContent(cachedArticles[0].id);
+            } else {
+                // If there are no articles at all, go back to the news list
+                showNewsList();
+            }
+        });
+    };
+    
+    // Function to load more articles for the Next Article feature
+    function loadMoreArticles(callback) {
+        isLoading = true;
+        
+        fetch(`/api/articles?page=${currentPage}&per_page=${perPage}`)
+            .then(response => response.json())
+            .then(articles => {
+                if (!articles || articles.length === 0) {
+                    hasMoreItems = false;
+                } else {
+                    // Add new articles to our cache
+                    cachedArticles = cachedArticles.concat(articles);
+                    currentPage++;
+                }
+                
+                isLoading = false;
+                
+                // If a callback was provided, call it
+                if (typeof callback === 'function') {
+                    callback();
+                }
+            })
+            .catch(error => {
+                console.error('Error loading more articles:', error);
+                isLoading = false;
+                
+                // If a callback was provided, call it even on error
+                if (typeof callback === 'function') {
+                    callback();
+                }
+            });
+    }
+    
+    // Function to go back to the news list - make it globally accessible
+    window.showNewsList = function() {
         // Show the news grid and hide the article view
         if (heroSection) heroSection.style.display = 'block';
         isSingleArticleView = false;
