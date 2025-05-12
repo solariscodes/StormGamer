@@ -463,15 +463,15 @@
                 
                 <!-- Log Categories Tabs -->
                 <div class="log-tabs">
-                    <a href="{{ url_for('admin.admin_panel', key=key, log_type='normal') }}" class="log-tab {% if active_tab == 'normal' %}active{% endif %}">
+                    <a href="{{ url_for('admin.admin_panel', key=key, log_type='normal') }}#logs" class="log-tab {% if active_tab == 'normal' %}active{% endif %}">
                         <i class="fas fa-file-alt"></i> Normal Logs
                         <span class="log-count">{{ log_counts.normal }}</span>
                     </a>
-                    <a href="{{ url_for('admin.admin_panel', key=key, log_type='admin') }}" class="log-tab {% if active_tab == 'admin' %}active{% endif %}">
+                    <a href="{{ url_for('admin.admin_panel', key=key, log_type='admin') }}#logs" class="log-tab {% if active_tab == 'admin' %}active{% endif %}">
                         <i class="fas fa-user-shield"></i> Admin Logs
                         <span class="log-count">{{ log_counts.admin }}</span>
                     </a>
-                    <a href="{{ url_for('admin.admin_panel', key=key, log_type='random_uri') }}" class="log-tab {% if active_tab == 'random_uri' %}active{% endif %}">
+                    <a href="{{ url_for('admin.admin_panel', key=key, log_type='random_uri') }}#logs" class="log-tab {% if active_tab == 'random_uri' %}active{% endif %}">
                         <i class="fas fa-random"></i> Random URI Logs
                         <span class="log-count">{{ log_counts.random_uri }}</span>
                     </a>
@@ -548,10 +548,18 @@
                 });
             });
             
+            // Check if we need to activate the logs tab based on URL hash
+            if (window.location.hash === '#logs') {
+                const logsTab = document.querySelector('.nav-link[data-tab="logs"]');
+                if (logsTab) {
+                    logsTab.click();
+                }
+            }
+            
             // Traffic chart
             const trafficCtx = document.getElementById('trafficChart');
             if (trafficCtx) {
-                const hourlyData = {{ stats.hourly_requests|tojson }};
+                const hourlyData = JSON.parse('{{ stats.hourly_requests|tojson|safe }}');
                 
                 new Chart(trafficCtx, {
                     type: 'line',
@@ -604,7 +612,7 @@
             // Distribution chart
             const distributionCtx = document.getElementById('distributionChart');
             if (distributionCtx) {
-                const methodDistribution = {{ stats.method_distribution|tojson }};
+                const methodDistribution = JSON.parse('{{ stats.method_distribution|tojson|safe }}');
                 
                 new Chart(distributionCtx, {
                     type: 'doughnut',
@@ -644,7 +652,7 @@
             // Traffic by hour chart
             const hourlyTrafficCtx = document.getElementById('hourlyTrafficChart');
             if (hourlyTrafficCtx) {
-                const hourlyTraffic = {{ stats.traffic_by_hour|tojson }};
+                const hourlyTraffic = JSON.parse('{{ stats.traffic_by_hour|tojson|safe }}');
                 const hours = Array.from({length: 24}, (_, i) => i + ':00');
                 
                 new Chart(hourlyTrafficCtx, {
@@ -697,7 +705,10 @@
             if (clearLogsBtn) {
                 clearLogsBtn.addEventListener('click', function() {
                     if (confirm('Are you sure you want to clear all logs?')) {
-                        fetch('/admin/clear-logs?key={{ key }}', {
+                        // Get the current log type
+                        const logType = '{{ active_tab }}';
+                        
+                        fetch('/admin/clear-logs?key={{ key }}&log_type=' + logType, {
                             method: 'POST'
                         })
                         .then(response => response.json())
