@@ -262,6 +262,28 @@ def search():
     
     return render_template('search.html', query=query, articles=search_results, editorial_team=EDITORIAL_TEAM)
 
+@app.route('/team')
+def team():
+    """Page for the editorial team"""
+    return render_template('team.html', editorial_team=EDITORIAL_TEAM)
+
+@app.route('/team/<member_name>')
+def team_member(member_name):
+    """Page for a specific team member"""
+    # Find the team member with the matching name
+    member_found = None
+    for member in EDITORIAL_TEAM:
+        # Convert name to URL-friendly format for comparison
+        url_name = member['name'].lower().replace(' ', '-')
+        if url_name == member_name:
+            member_found = member
+            break
+    
+    if member_found:
+        return render_template('team_member.html', member=member_found, editorial_team=EDITORIAL_TEAM)
+    else:
+        abort(404)  # Member not found
+
 if __name__ == '__main__':
     import os
     port = int(os.environ.get('PORT', 5000))

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ member.name }} - StormGamer</title>
+    <!-- Simple SVG favicon that will work reliably -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon/favicon.svg') }}" type="image/svg+xml">
+    <link rel="alternate icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}" type="image/x-icon">
+    <meta name="theme-color" content="#ff005c">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        .member-profile {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 3rem;
+            margin: 3rem 0;
+        }
+        
+        .member-sidebar {
+            position: sticky;
+            top: 2rem;
+            height: fit-content;
+        }
+        
+        .member-image {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            margin-bottom: 2rem;
+        }
+        
+        .member-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .member-info {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .member-info h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent-color);
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .member-info .role {
+            color: var(--light-text);
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            display: block;
+            font-size: 1.2rem;
+        }
+        
+        .member-info .info-item {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .member-info .info-item i {
+            color: var(--accent-color);
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .member-info .info-item span {
+            color: var(--gray-text);
+        }
+        
+        .member-content {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .member-content h1 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--light-text);
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .member-content .subtitle {
+            color: var(--accent-color);
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            display: block;
+        }
+        
+        .member-content .bio {
+            color: var(--gray-text);
+            line-height: 1.8;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+        
+        .member-content h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--light-text);
+            font-size: 1.5rem;
+            margin: 2rem 0 1rem;
+        }
+        
+        .favorite-games {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .game-item {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+        
+        .game-item:hover {
+            transform: translateY(-5px);
+            background-color: rgba(255, 0, 92, 0.1);
+        }
+        
+        .game-item img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .game-item span {
+            color: var(--light-text);
+            font-size: 0.9rem;
+            display: block;
+        }
+        
+        .back-to-team {
+            display: inline-block;
+            margin-top: 2rem;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+        
+        .back-to-team:hover {
+            background-color: var(--accent-hover);
+        }
+        
+        @media (max-width: 992px) {
+            .member-profile {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .member-sidebar {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <a href="/" class="logo-link">
+                <div class="logo">
+                    <i class="fas fa-bolt"></i>
+                    <h1>StormGamer</h1>
+                </div>
+            </a>
+            <p class="tagline">Your Ultimate Gaming News Source</p>
+            <div class="search-container">
+                <form action="/search" method="get" id="search-form">
+                    <input type="text" name="q" id="search-input" placeholder="Search for gaming news..." required>
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="/"><i class="fas fa-newspaper"></i> News</a></li>
+                <li class="active"><a href="/team"><i class="fas fa-users"></i> Our Team</a></li>
+                <li><a href="#"><i class="fas fa-user"></i> Sign In / Register</a></li>
+                <li><a href="#" id="theme-toggle"><i class="fas fa-moon"></i> <span id="theme-text">Light Mode</span></a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <div class="container">
+            <div class="member-profile">
+                <div class="member-sidebar">
+                    <div class="member-image">
+                        <img src="{{ url_for('static', filename='images/team/placeholder-' + (loop.index|string if loop.index is defined else '1') + '.jpg') }}" alt="{{ member.name }}">
+                    </div>
+                    <div class="member-info">
+                        <h2>{{ member.name }}</h2>
+                        <span class="role">{{ member.role }}</span>
+                        
+                        <div class="info-item">
+                            <i class="fas fa-gamepad"></i>
+                            <span>Gaming since 2005</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-trophy"></i>
+                            <span>Favorite genre: {{ {'Chief Editor': 'RPG', 'Content Editor': 'Action', 'Writer': 'Strategy', 'Social Media': 'Adventure', 'Video Editor': 'Retro', 'Proofreader': 'JRPG'}.get(member.role, 'RPG') }}</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-desktop"></i>
+                            <span>Preferred platform: {{ {'Chief Editor': 'PC', 'Content Editor': 'PlayStation', 'Writer': 'PC', 'Social Media': 'Nintendo Switch', 'Video Editor': 'Retro Consoles', 'Proofreader': 'PlayStation'}.get(member.role, 'PC') }}</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-clock"></i>
+                            <span>Joined StormGamer in 2023</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="member-content">
+                    <h1>{{ member.name }}</h1>
+                    <span class="subtitle">{{ member.role }} at StormGamer</span>
+                    
+                    <div class="bio">
+                        <p>{{ member.bio }}</p>
+                        <p>{{ member.name }} has been a passionate gamer since childhood, with a deep love for {{ {'Chief Editor': 'role-playing games and immersive storytelling', 'Content Editor': 'competitive gaming and eSports', 'Writer': 'strategy games and complex simulations', 'Social Media': 'community building and gaming culture', 'Video Editor': 'retro gaming and gaming history', 'Proofreader': 'narrative-driven games and JRPGs'}.get(member.role, 'all types of gaming experiences') }}.</p>
+                        <p>With years of experience in the gaming industry, {{ member.name.split()[0] }} brings a unique perspective to the StormGamer team, focusing on delivering high-quality content that resonates with our community of dedicated gamers.</p>
+                        <p>When not writing for StormGamer, you can find {{ member.name.split()[0] }} {{ {'Chief Editor': 'exploring vast open worlds in the latest RPGs', 'Content Editor': 'streaming competitive matches on Twitch', 'Writer': 'planning elaborate strategies in 4X games', 'Social Media': 'engaging with gaming communities across platforms', 'Video Editor': 'hunting for rare retro games at flea markets', 'Proofreader': 'analyzing the narrative structure of story-driven games'}.get(member.role, 'playing the latest releases') }}.</p>
+                    </div>
+                    
+                    <h3>Favorite Games</h3>
+                    <div class="favorite-games">
+                        {% set games = {
+                            'Chief Editor': [('The Witcher 3', 'witcher.jpg'), ('Skyrim', 'skyrim.jpg'), ('Mass Effect 2', 'mass-effect.jpg'), ('Baldur\'s Gate 3', 'baldurs-gate.jpg')],
+                            'Content Editor': [('Overwatch', 'overwatch.jpg'), ('League of Legends', 'lol.jpg'), ('Valorant', 'valorant.jpg'), ('Apex Legends', 'apex.jpg')],
+                            'Writer': [('Civilization VI', 'civ6.jpg'), ('Total War: Warhammer', 'warhammer.jpg'), ('Age of Empires II', 'aoe2.jpg'), ('Stellaris', 'stellaris.jpg')],
+                            'Social Media': [('Animal Crossing', 'animal-crossing.jpg'), ('The Legend of Zelda', 'zelda.jpg'), ('Stardew Valley', 'stardew.jpg'), ('Hades', 'hades.jpg')],
+                            'Video Editor': [('Super Mario World', 'mario.jpg'), ('Chrono Trigger', 'chrono.jpg'), ('Final Fantasy VII', 'ff7.jpg'), ('Castlevania: SOTN', 'castlevania.jpg')],
+                            'Proofreader': [('Final Fantasy XIV', 'ff14.jpg'), ('Persona 5', 'persona5.jpg'), ('Nier: Automata', 'nier.jpg'), ('Dragon Quest XI', 'dq11.jpg')]
+                        }.get(member.role, [('The Witcher 3', 'witcher.jpg'), ('Skyrim', 'skyrim.jpg'), ('Mass Effect 2', 'mass-effect.jpg'), ('Baldur\'s Gate 3', 'baldurs-gate.jpg')]) %}
+                        
+                        {% for game_name, game_img in games %}
+                        <div class="game-item">
+                            <img src="{{ url_for('static', filename='images/games/placeholder.jpg') }}" alt="{{ game_name }}">
+                            <span>{{ game_name }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <h3>Recent Articles</h3>
+                    <ul class="recent-articles">
+                        <li><a href="#">The Future of Gaming: What to Expect in 2025</a></li>
+                        <li><a href="#">Why Indie Games Continue to Innovate Where AAA Titles Fail</a></li>
+                        <li><a href="#">The Evolution of Storytelling in Video Games</a></li>
+                    </ul>
+                    
+                    <a href="{{ url_for('team') }}" class="back-to-team"><i class="fas fa-arrow-left"></i> Back to Team</a>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <i class="fas fa-bolt"></i>
+                <h2>StormGamer</h2>
+            </div>
+            <div class="social-links">
+                <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-discord"></i></a>
+            </div>
+            <p>&copy; 2025 StormGamer. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html> 

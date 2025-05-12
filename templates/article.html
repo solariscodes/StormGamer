@@ -107,7 +107,7 @@
                     <h3>Editorial Team</h3>
                     <div class="team-grid">
                         {% for member in editorial_team %}
-                        <div class="team-member-card">
+                        <a href="{{ url_for('team_member', member_name=member.name|lower|replace(' ', '-')) }}" class="team-member-card" style="text-decoration: none; color: inherit;">
                             <div class="team-member-photo">
                                 <img src="{{ url_for('static', filename='images/team/placeholder-' + loop.index|string + '.jpg') }}" alt="{{ member.name }}">
                             </div>
@@ -115,8 +115,11 @@
                                 <h4>{{ member.name }}</h4>
                                 <span class="team-member-role">{{ member.role }}</span>
                             </div>
-                        </div>
+                        </a>
                         {% endfor %}
+                    </div>
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <a href="{{ url_for('team') }}" class="ad-cta-button">Meet Our Team</a>
                     </div>
                 </div>
             </div>
