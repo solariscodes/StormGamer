@@ -20,6 +20,50 @@
     
     <!-- Chart.js for data visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* Log tabs styling */
+        .log-tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .log-tab {
+            padding: 0.75rem 1.5rem;
+            color: var(--gray-text);
+            text-decoration: none;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .log-tab:hover {
+            color: var(--light-text);
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .log-tab.active {
+            color: var(--accent-color);
+            border-bottom-color: var(--accent-color);
+        }
+        
+        .log-count {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 0.15rem 0.5rem;
+            font-size: 0.75rem;
+        }
+        
+        .truncate {
+            max-width: 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
 </head>
 <body>
     <div class="dashboard-container">
@@ -110,7 +154,7 @@
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-title"><i class="fas fa-eye"></i> Total Visits</div>
-                        <div class="stat-value">{{ http_logs|length }}</div>
+                        <div class="stat-value">{{ log_counts.normal }}</div>
                         <div class="stat-change positive">
                             <i class="fas fa-arrow-up"></i> Active tracking
                         </div>
@@ -409,53 +453,62 @@
             <!-- Logs Section -->
             <section id="logs" class="dashboard-section">
                 <div class="dashboard-header">
-                    <h1 class="page-title"><i class="fas fa-list"></i> HTTP Request Logs</h1>
+                    <h1 class="page-title"><i class="fas fa-list"></i> System Logs</h1>
                     <div class="header-actions">
-                        <a href="{{ url_for('admin.admin_panel', key=key) }}" class="btn btn-outline">
-                            <i class="fas fa-sync-alt"></i> Refresh
-                        </a>
-                        <button class="btn btn-danger" id="clear-logs">
-                            <i class="fas fa-trash"></i> Clear Logs
+                        <button id="clearLogsBtn" class="btn btn-danger">
+                            <i class="fas fa-trash-alt"></i> Clear Logs
                         </button>
                     </div>
                 </div>
                 
-                <div class="card">
+                <!-- Log Categories Tabs -->
+                <div class="log-tabs">
+                    <a href="{{ url_for('admin.admin_panel', key=key, log_type='normal') }}" class="log-tab {% if active_tab == 'normal' %}active{% endif %}">
+                        <i class="fas fa-file-alt"></i> Normal Logs
+                        <span class="log-count">{{ log_counts.normal }}</span>
+                    </a>
+                    <a href="{{ url_for('admin.admin_panel', key=key, log_type='admin') }}" class="log-tab {% if active_tab == 'admin' %}active{% endif %}">
+                        <i class="fas fa-user-shield"></i> Admin Logs
+                        <span class="log-count">{{ log_counts.admin }}</span>
+                    </a>
+                    <a href="{{ url_for('admin.admin_panel', key=key, log_type='random_uri') }}" class="log-tab {% if active_tab == 'random_uri' %}active{% endif %}">
+                        <i class="fas fa-random"></i> Random URI Logs
+                        <span class="log-count">{{ log_counts.random_uri }}</span>
+                    </a>
+                </div>
+                
+                <div class="card mb-6">
                     <div class="card-header">
-                        <h2 class="card-title"><i class="fas fa-history"></i> Recent Request Logs</h2>
-                        <div class="flex items-center gap-2">
-                            <select id="log-filter" class="btn btn-outline">
-                                <option value="all">All Methods</option>
-                                <option value="GET">GET</option>
-                                <option value="POST">POST</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
+                        <h2 class="card-title">
+                            {% if active_tab == 'normal' %}
+                                <i class="fas fa-file-alt"></i> Normal Request Logs
+                            {% elif active_tab == 'admin' %}
+                                <i class="fas fa-user-shield"></i> Admin Request Logs
+                            {% elif active_tab == 'random_uri' %}
+                                <i class="fas fa-random"></i> Random URI Request Logs
+                            {% endif %}
+                        </h2>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="data-table" id="logs-table">
+                            <table class="data-table logs-table">
                                 <thead>
                                     <tr>
                                         <th>Time</th>
+                                        <th>IP</th>
                                         <th>Method</th>
                                         <th>Path</th>
-                                        <th>IP Address</th>
                                         <th>User Agent</th>
                                     </tr>
                                 </thead>
-                                <tbody id="logs-body">
-                                    {% for log in http_logs|reverse %}
-                                    <tr data-method="{{ log.method }}">
-                                        <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                                        <td>
-                                            <span class="badge badge-{% if log.method == 'GET' %}info{% elif log.method == 'POST' %}success{% elif log.method == 'DELETE' %}danger{% else %}warning{% endif %}">
-                                                {{ log.method }}
-                                            </span>
-                                        </td>
-                                        <td title="{{ log.path }}">{{ log.path[:30] + '...' if log.path|length > 30 else log.path }}</td>
+                                <tbody>
+                                    {% for log in http_logs %}
+                                    <tr>
+                                        <td>{{ log.timestamp }}</td>
                                         <td>{{ log.remote_addr }}</td>
-                                        <td title="{{ log.user_agent }}">{{ log.user_agent[:30] + '...' if log.user_agent|length > 30 else log.user_agent }}</td>
+                                        <td>{{ log.method }}</td>
+                                        <td>{{ log.path }}</td>
+                                        <td class="truncate">{{ log.user_agent }}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -467,207 +520,54 @@
         </main>
     </div>
     
+    <!-- Scripts for Dashboard -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Tab Navigation
-            const tabs = document.querySelectorAll('.nav-link[data-tab]');
+            // Tab navigation
+            const navLinks = document.querySelectorAll('.nav-link');
             const sections = document.querySelectorAll('.dashboard-section');
             
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function(e) {
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
                     e.preventDefault();
                     
-                    // Remove active class from all tabs and sections
-                    tabs.forEach(t => t.classList.remove('active'));
-                    sections.forEach(s => s.classList.remove('active'));
+                    const targetTab = this.getAttribute('data-tab');
                     
-                    // Add active class to clicked tab
+                    // Update active class on nav links
+                    navLinks.forEach(navLink => navLink.classList.remove('active'));
                     this.classList.add('active');
                     
-                    // Show corresponding section
-                    const sectionId = this.getAttribute('data-tab');
-                    document.getElementById(sectionId).classList.add('active');
+                    // Show the target section
+                    sections.forEach(section => {
+                        if (section.id === targetTab) {
+                            section.classList.add('active');
+                        } else {
+                            section.classList.remove('active');
+                        }
+                    });
                 });
             });
             
-            // Traffic Chart
-            const trafficCtx = document.getElementById('trafficChart').getContext('2d');
-            
-            // Prepare chart labels and data
-            const hourlyLabels = [];
-            const hourlyDataPoints = [];
-            
-            {% for item in stats.hourly_requests %}
-                hourlyLabels.push('{{ item.time }}');
-                hourlyDataPoints.push({{ item.count }});
-            {% endfor %}
-            
-            // Create the chart with simpler data format
-            new Chart(trafficCtx, {
-                type: 'line',
-                data: {
-                    labels: hourlyLabels,
-                    datasets: [{
-                        label: 'Requests per Hour',
-                        data: hourlyDataPoints,
-                        borderColor: '#ff005c',
-                        backgroundColor: 'rgba(255, 0, 92, 0.1)',
-                        borderWidth: 2,
-                        pointBackgroundColor: '#ff005c',
-                        pointBorderColor: '#fff',
-                        tension: 0.3,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                maxRotation: 45,
-                                minRotation: 45
-                            }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top'
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false
-                        }
-                    }
-                }
-            });
-            
-            // Daily Traffic Chart
-            if (document.getElementById('dailyTrafficChart')) {
-                const dailyCtx = document.getElementById('dailyTrafficChart').getContext('2d');
+            // Traffic chart
+            const trafficCtx = document.getElementById('trafficChart');
+            if (trafficCtx) {
+                const hourlyData = {{ stats.hourly_requests|tojson }};
                 
-                // Prepare labels and data
-                const dailyLabels = [];
-                const dailyCounts = [];
-                
-                {% for item in stats.daily_requests %}
-                    dailyLabels.push('{{ item.date }}');
-                    dailyCounts.push({{ item.count }});
-                {% endfor %}
-                
-                new Chart(dailyCtx, {
-                    type: 'bar',
+                new Chart(trafficCtx, {
+                    type: 'line',
                     data: {
-                        labels: dailyLabels,
+                        labels: hourlyData.map(item => {
+                            const date = new Date(item.time);
+                            return date.getHours() + ':00';
+                        }),
                         datasets: [{
-                            label: 'Requests per Day',
-                            data: dailyCounts,
-                            backgroundColor: '#03dac6',
-                            borderColor: '#03dac6',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            x: {
-                                grid: {
-                                    display: false
-                                },
-                                ticks: {
-                                    maxRotation: 45,
-                                    minRotation: 45
-                                }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                grid: {
-                                    color: 'rgba(255, 255, 255, 0.1)'
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-            
-            // Hourly Distribution Chart
-            if (document.getElementById('hourlyTrafficChart')) {
-                const hourlyDistCtx = document.getElementById('hourlyTrafficChart').getContext('2d');
-                const hourlyDistData = [
-                    {% for count in stats.traffic_by_hour %}
-                    {{ count }}{% if not loop.last %},{% endif %}
-                    {% endfor %}
-                ];
-                
-                const hourLabels = Array.from({length: 24}, (_, i) => {
-                    const hour = i.toString().padStart(2, '0');
-                    return `${hour}:00`;
-                });
-                
-                new Chart(hourlyDistCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: hourLabels,
-                        datasets: [{
-                            label: 'Traffic by Hour of Day',
-                            data: hourlyDistData,
-                            backgroundColor: '#3b82f6',
-                            borderColor: '#3b82f6',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                });
-            }
-            
-            // HTTP Methods Chart
-            if (document.getElementById('methodsChart')) {
-                const methodsCtx = document.getElementById('methodsChart').getContext('2d');
-                const methodLabels = [];
-                const methodData = [];
-                const methodColors = {
-                    'GET': '#3b82f6',  // blue
-                    'POST': '#10b981', // green
-                    'PUT': '#f59e0b',  // amber
-                    'DELETE': '#ef4444', // red
-                    'HEAD': '#8b5cf6',  // violet
-                    'OPTIONS': '#6b7280', // gray
-                };
-                
-                {% for method, count in stats.method_distribution.items() %}
-                methodLabels.push('{{ method }}');
-                methodData.push({{ count }});
-                {% endfor %}
-                
-                const colors = methodLabels.map(method => methodColors[method] || '#6b7280');
-                
-                new Chart(methodsCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: methodLabels,
-                        datasets: [{
-                            data: methodData,
-                            backgroundColor: colors,
-                            borderWidth: 1
+                            label: 'Hourly Visits',
+                            data: hourlyData.map(item => item.count),
+                            borderColor: '#ff005c',
+                            backgroundColor: 'rgba(255, 0, 92, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true
                         }]
                     },
                     options: {
@@ -675,69 +575,144 @@
                         maintainAspectRatio: false,
                         plugins: {
                             legend: {
-                                position: 'right'
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.05)'
+                                },
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.7)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.05)'
+                                },
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.7)'
+                                }
                             }
                         }
                     }
                 });
             }
             
-            // Refresh buttons
-            const refreshButtons = document.querySelectorAll('[id^="refresh-"]');
-            refreshButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    window.location.reload();
-                    console.log('Refreshing page...');
+            // Distribution chart
+            const distributionCtx = document.getElementById('distributionChart');
+            if (distributionCtx) {
+                const methodDistribution = {{ stats.method_distribution|tojson }};
+                
+                new Chart(distributionCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(methodDistribution),
+                        datasets: [{
+                            data: Object.values(methodDistribution),
+                            backgroundColor: [
+                                '#ff005c',
+                                '#00c2ff',
+                                '#ffcc00',
+                                '#00ff8c',
+                                '#8c00ff'
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: 'rgba(255, 255, 255, 0.7)',
+                                    padding: 15,
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            }
+                        }
+                    }
                 });
-            });
+            }
             
-            // Make sure refresh-stats button works
-            const refreshStats = document.getElementById('refresh-stats');
-            if (refreshStats) {
-                refreshStats.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    window.location.reload();
-                    console.log('Refreshing stats...');
+            // Traffic by hour chart
+            const hourlyTrafficCtx = document.getElementById('hourlyTrafficChart');
+            if (hourlyTrafficCtx) {
+                const hourlyTraffic = {{ stats.traffic_by_hour|tojson }};
+                const hours = Array.from({length: 24}, (_, i) => i + ':00');
+                
+                new Chart(hourlyTrafficCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: hours,
+                        datasets: [{
+                            label: 'Visits by Hour',
+                            data: hourlyTraffic,
+                            backgroundColor: '#00c2ff',
+                            borderWidth: 0,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.05)'
+                                },
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.7)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.7)',
+                                    maxRotation: 90,
+                                    minRotation: 90
+                                }
+                            }
+                        }
+                    }
                 });
             }
             
             // Clear logs button
-            document.getElementById('clear-logs').addEventListener('click', function() {
-                if (confirm('Are you sure you want to clear all logs?')) {
-                    fetch('/admin/clear-logs?key={{ key }}', {
-                        method: 'POST'
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            document.getElementById('logs-body').innerHTML = '';
-                            alert('Logs cleared successfully!');
-                        } else {
-                            alert('Failed to clear logs: ' + data.error);
-                        }
-                    })
-                    .catch(error => {
-                        alert('Error: ' + error);
-                    });
-                }
-            });
-            
-            // Log filter
-            const logFilter = document.getElementById('log-filter');
-            if (logFilter) {
-                logFilter.addEventListener('change', function() {
-                    const method = this.value;
-                    const rows = document.querySelectorAll('#logs-table tbody tr');
-                    
-                    rows.forEach(row => {
-                        const rowMethod = row.getAttribute('data-method');
-                        if (method === 'all' || rowMethod === method || (method === 'other' && rowMethod !== 'GET' && rowMethod !== 'POST')) {
-                            row.style.display = '';
-                        } else {
-                            row.style.display = 'none';
-                        }
-                    });
+            const clearLogsBtn = document.getElementById('clearLogsBtn');
+            if (clearLogsBtn) {
+                clearLogsBtn.addEventListener('click', function() {
+                    if (confirm('Are you sure you want to clear all logs?')) {
+                        fetch('/admin/clear-logs?key={{ key }}', {
+                            method: 'POST'
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                window.location.reload();
+                            } else {
+                                alert('Failed to clear logs: ' + (data.error || 'Unknown error'));
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred while clearing logs');
+                        });
+                    }
                 });
             }
         });

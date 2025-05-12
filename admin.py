@@ -7,17 +7,24 @@ from flask import Blueprint, render_template, request, redirect, url_for, abort,
 
 admin_bp = Blueprint('admin', __name__, template_folder='templates')
 
-# Store logs in memory
+# Store logs in memory - separate normal logs from admin and random URI logs
 http_logs = []
-MAX_LOGS = 1000  # Maximum number of logs to store
+admin_logs = []  # Logs for admin routes
+random_uri_logs = []  # Logs for random URIs that don't match any route
+
+# No maximum log size for infinite logging
+MAX_LOGS = float('inf')  # Set to infinity
 
 class RequestLog:
-    def __init__(self, request, timestamp=None):
+    def __init__(self, request, timestamp=None, is_admin=False, is_random_uri=False):
         self.timestamp = timestamp or datetime.now()
         self.method = getattr(request, 'method', 'UNKNOWN')
         self.path = getattr(request, 'path', 'UNKNOWN')
         self.args = dict(request.args) if hasattr(request, 'args') else {}
         self.form = dict(request.form) if hasattr(request, 'form') and request.form else None
+        self.is_admin = is_admin  # Flag to identify admin routes
+        self.is_random_uri = is_random_uri  # Flag to identify random URIs
+        
         # Get the real IP address from proxy headers
         if hasattr(request, 'headers') and request.headers.get('X-Forwarded-For'):
             self.remote_addr = request.headers.get('X-Forwarded-For').split(',')[0].strip()
@@ -43,17 +50,37 @@ class RequestLog:
             'form': self.form,
             'remote_addr': self.remote_addr,
             'user_agent': self.user_agent,
-            'referrer': self.referrer
+            'referrer': self.referrer,
+            'is_admin': self.is_admin,
+            'is_random_uri': self.is_random_uri
         }
 
 def log_request(request):
-    """Add request to the logs"""
-    global http_logs
-    http_logs.append(RequestLog(request))
+    """Add request to the appropriate logs"""
+    path = request.path
     
-    # Trim logs if they exceed the maximum
-    if len(http_logs) > MAX_LOGS:
-        http_logs = http_logs[-MAX_LOGS:]
+    # Determine if this is an admin route or a random URI
+    is_admin = path.startswith('/admin')
+    
+    # Check if the path matches any registered routes
+    is_random_uri = False
+    if current_app:
+        # Get all registered routes
+        registered_routes = [rule.rule for rule in current_app.url_map.iter_rules()]
+        # Check if the path matches any route (simple check, doesn't account for parameters)
+        if not any(path == route or path.startswith(route.rstrip('/')) for route in registered_routes):
+            is_random_uri = True
+    
+    # Create the log entry
+    log_entry = RequestLog(request, is_admin=is_admin, is_random_uri=is_random_uri)
+    
+    # Add to the appropriate log list
+    if is_admin:
+        admin_logs.append(log_entry)
+    elif is_random_uri:
+        random_uri_logs.append(log_entry)
+    else:
+        http_logs.append(log_entry)
 
 @admin_bp.route('/admin')
 def admin_redirect():
@@ -89,12 +116,38 @@ def calculate_statistics(logs):
             'geo_distribution': {}
         }
     
+    # Extract data - filter out admin routes for statistics
+    filtered_logs = [log for log in logs if not getattr(log, 'is_admin', False)]
+    
+    if not filtered_logs:
+        return {
+            'unique_ips': [],
+            'unique_ips_count': 0,
+            'ip_frequency': {},
+            'top_ips': [],
+            'path_frequency': {},
+            'top_paths': [],
+            'user_agent_frequency': {},
+            'top_user_agents': [],
+            'hourly_requests': {},
+            'daily_requests': {},
+            'method_distribution': {},
+            'unique_user_agents': [],
+            'unique_user_agents_count': 0,
+            'most_visited_page': 'None',
+            'most_active_ip': 'None',
+            'requests_today': 0,
+            'requests_this_hour': 0,
+            'referrer_distribution': {},
+            'traffic_by_hour': []
+        }
+    
     # Extract data
-    ips = [log.remote_addr for log in logs]
-    paths = [log.path for log in logs]
-    user_agents = [log.user_agent for log in logs]
-    methods = [log.method for log in logs]
-    referrers = [log.referrer for log in logs if log.referrer]
+    ips = [log.remote_addr for log in filtered_logs]
+    paths = [log.path for log in filtered_logs]
+    user_agents = [log.user_agent for log in filtered_logs]
+    methods = [log.method for log in filtered_logs]
+    referrers = [log.referrer for log in filtered_logs if log.referrer]
     
     # Count unique IPs
     unique_ips = list(set(ips))
@@ -122,7 +175,7 @@ def calculate_statistics(logs):
     hourly_requests = defaultdict(int)
     daily_requests = defaultdict(int)
     
-    for log in logs:
+    for log in filtered_logs:
         log_date = log.timestamp.date()
         log_hour = log.timestamp.replace(minute=0, second=0, microsecond=0)
         
@@ -135,13 +188,13 @@ def calculate_statistics(logs):
     
     # Traffic by hour of day (0-23)
     traffic_by_hour = [0] * 24
-    for log in logs:
+    for log in filtered_logs:
         hour = log.timestamp.hour
         traffic_by_hour[hour] += 1
     
     # Count today's and this hour's requests
-    requests_today = sum(1 for log in logs if log.timestamp.date() == today)
-    requests_this_hour = sum(1 for log in logs if log.timestamp.replace(minute=0, second=0, microsecond=0) == current_hour)
+    requests_today = sum(1 for log in filtered_logs if log.timestamp.date() == today)
+    requests_this_hour = sum(1 for log in filtered_logs if log.timestamp.replace(minute=0, second=0, microsecond=0) == current_hour)
     
     # Find most visited page and most active IP
     most_visited_page = max(path_frequency.items(), key=lambda x: x[1])[0] if path_frequency else 'None'
@@ -212,18 +265,40 @@ def admin_panel():
     if request.args.get('key') != admin_key:
         abort(403)  # Forbidden
     
-    # Get the logs to display
-    logs = [log.to_dict() for log in reversed(http_logs)]
+    # Get log type from query parameter, default to normal logs
+    log_type = request.args.get('log_type', 'normal')
     
-    # Calculate statistics
+    # Select the appropriate logs based on the log_type
+    if log_type == 'admin':
+        logs_to_display = admin_logs
+        active_tab = 'admin'
+    elif log_type == 'random_uri':
+        logs_to_display = random_uri_logs
+        active_tab = 'random_uri'
+    else:  # normal logs
+        logs_to_display = http_logs
+        active_tab = 'normal'
+    
+    # Get the logs to display
+    logs = [log.to_dict() for log in reversed(logs_to_display)]
+    
+    # Calculate statistics from normal logs only (excluding admin routes)
     stats = calculate_statistics(http_logs)
+    
+    # Get log counts
+    log_counts = {
+        'normal': len(http_logs),
+        'admin': len(admin_logs),
+        'random_uri': len(random_uri_logs),
+        'total': len(http_logs) + len(admin_logs) + len(random_uri_logs)
+    }
     
     # Get server information
     server_info = {
         'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         'python_version': os.sys.version,
         'flask_version': getattr(current_app, 'version', 'Unknown'),
-        'request_count': len(http_logs),
+        'request_count': log_counts['normal'],  # Only count normal logs
         'unique_ips': stats['unique_ips_count'],
         'unique_user_agents': stats['unique_user_agents_count'],
         'most_visited_page': stats['most_visited_page'],
@@ -239,11 +314,13 @@ def admin_panel():
             recent_visits[log.remote_addr] = log.timestamp.strftime('%Y-%m-%d %H:%M:%S')
     
     return render_template('admin_new.html', 
-                           http_logs=http_logs, 
+                           http_logs=logs,  # Use the selected logs
                            server_info=server_info, 
                            key=admin_key,
                            stats=stats,
-                           recent_visits=recent_visits)
+                           recent_visits=recent_visits,
+                           log_counts=log_counts,
+                           active_tab=active_tab)
 
 @admin_bp.route('/admin/clear-logs', methods=['POST'])
 def clear_logs():
@@ -259,8 +336,21 @@ def clear_logs():
     if request.args.get('key') != admin_key:
         return jsonify({'success': False, 'error': 'Unauthorized'}), 403
     
-    # Clear the logs
-    global http_logs
-    http_logs = []
+    # Get log type from query parameter, default to all
+    log_type = request.args.get('log_type', 'all')
+    
+    # Clear the specified logs
+    global http_logs, admin_logs, random_uri_logs
+    
+    if log_type == 'normal':
+        http_logs = []
+    elif log_type == 'admin':
+        admin_logs = []
+    elif log_type == 'random_uri':
+        random_uri_logs = []
+    else:  # clear all logs
+        http_logs = []
+        admin_logs = []
+        random_uri_logs = []
     
     return jsonify({'success': True})
