@@ -63,6 +63,38 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+
+        /* Refresh button styling */
+        .refresh-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--light-text);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+        
+        .refresh-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .refresh-btn i {
+            transition: transform 0.5s ease;
+        }
+        
+        .refresh-btn:hover i {
+            transform: rotate(180deg);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
     </style>
 </head>
 <body>
@@ -146,7 +178,7 @@
                 <div class="dashboard-header">
                     <h1 class="page-title"><i class="fas fa-tachometer-alt"></i> Dashboard Overview</h1>
                     <div class="header-actions">
-                        <a href="{{ url_for('admin.admin_panel', key=key) }}" class="btn btn-outline">
+                        <a href="{{ url_for('admin.admin_panel', key=key) }}#overview" class="refresh-btn">
                             <i class="fas fa-sync-alt"></i> Refresh Data
                         </a>
                     </div>
@@ -264,8 +296,8 @@
                 <div class="dashboard-header">
                     <h1 class="page-title"><i class="fas fa-chart-line"></i> Traffic Analysis</h1>
                     <div class="header-actions">
-                        <a href="{{ url_for('admin.admin_panel', key=key) }}" class="btn btn-outline">
-                            <i class="fas fa-sync-alt"></i> Refresh
+                        <a href="{{ url_for('admin.admin_panel', key=key) }}#traffic" class="refresh-btn">
+                            <i class="fas fa-sync-alt"></i> Refresh Data
                         </a>
                     </div>
                 </div>
@@ -298,8 +330,8 @@
                 <div class="dashboard-header">
                     <h1 class="page-title"><i class="fas fa-users"></i> Visitor Data</h1>
                     <div class="header-actions">
-                        <a href="{{ url_for('admin.admin_panel', key=key) }}" class="btn btn-outline">
-                            <i class="fas fa-sync-alt"></i> Refresh
+                        <a href="{{ url_for('admin.admin_panel', key=key) }}#visitors" class="refresh-btn">
+                            <i class="fas fa-sync-alt"></i> Refresh Data
                         </a>
                     </div>
                 </div>
@@ -342,8 +374,8 @@
                 <div class="dashboard-header">
                     <h1 class="page-title"><i class="fas fa-file-alt"></i> Page Analytics</h1>
                     <div class="header-actions">
-                        <a href="{{ url_for('admin.admin_panel', key=key) }}" class="btn btn-outline">
-                            <i class="fas fa-sync-alt"></i> Refresh
+                        <a href="{{ url_for('admin.admin_panel', key=key) }}#pages" class="refresh-btn">
+                            <i class="fas fa-sync-alt"></i> Refresh Data
                         </a>
                     </div>
                 </div>
@@ -382,8 +414,8 @@
                 <div class="dashboard-header">
                     <h1 class="page-title"><i class="fas fa-laptop-code"></i> Tech Data</h1>
                     <div class="header-actions">
-                        <a href="{{ url_for('admin.admin_panel', key=key) }}" class="btn btn-outline">
-                            <i class="fas fa-sync-alt"></i> Refresh
+                        <a href="{{ url_for('admin.admin_panel', key=key) }}#tech" class="refresh-btn">
+                            <i class="fas fa-sync-alt"></i> Refresh Data
                         </a>
                     </div>
                 </div>
@@ -457,6 +489,9 @@
                 <div class="dashboard-header">
                     <h1 class="page-title"><i class="fas fa-list"></i> System Logs</h1>
                     <div class="header-actions">
+                        <a href="{{ url_for('admin.admin_panel', key=key, log_type=active_tab) }}#logs" class="refresh-btn">
+                            <i class="fas fa-sync-alt"></i> Refresh Logs
+                        </a>
                         <button id="clearLogsBtn" class="btn btn-danger">
                             <i class="fas fa-trash-alt"></i> Clear Logs
                         </button>
@@ -551,12 +586,33 @@
             });
             
             // Check if we need to activate the logs tab based on URL hash
-            if (window.location.hash === '#logs') {
-                const logsTab = document.querySelector('.nav-link[data-tab="logs"]');
-                if (logsTab) {
-                    logsTab.click();
+            if (window.location.hash) {
+                const hash = window.location.hash.substring(1);
+                const tabLink = document.querySelector(`.nav-link[data-tab="${hash}"]`);
+                if (tabLink) {
+                    tabLink.click();
                 }
             }
+            
+            // Add animation to refresh buttons
+            const refreshButtons = document.querySelectorAll('.refresh-btn');
+            refreshButtons.forEach(btn => {
+                btn.addEventListener('click', function(event) {
+                    const icon = this.querySelector('i');
+                    icon.classList.add('fa-spin');
+                    
+                    // Store the href to navigate after animation
+                    const href = this.getAttribute('href');
+                    
+                    // Prevent default navigation
+                    event.preventDefault();
+                    
+                    // Navigate after a short delay to show animation
+                    setTimeout(() => {
+                        window.location.href = href;
+                    }, 500);
+                });
+            });
             
             // Traffic chart
             const trafficCtx = document.getElementById('trafficChart');

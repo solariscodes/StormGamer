@@ -127,8 +127,30 @@ def log_request(request):
     if current_app:
         # Get all registered routes
         registered_routes = [rule.rule for rule in current_app.url_map.iter_rules()]
-        # Check if the path matches any route (simple check, doesn't account for parameters)
-        if not any(path == route or path.startswith(route.rstrip('/')) for route in registered_routes):
+        
+        # Better route matching that handles parameters
+        path_match = False
+        for route in registered_routes:
+            # Convert Flask route pattern to regex pattern
+            # Replace <type:param> or <param> with a wildcard for matching
+            route_pattern = route
+            if '<' in route:
+                # Replace Flask route parameters with regex wildcards
+                import re
+                route_pattern = re.sub(r'<(?:[^:>]+:)?([^>]+)>', r'[^/]+', route_pattern)
+            
+            # Check if path matches the route pattern
+            if re.match(f"^{route_pattern}$", path):
+                path_match = True
+                break
+            
+            # Also check if it's a static file or a directory match
+            if route.endswith('/<path:filename>') and path.startswith(route[:-16]):
+                path_match = True
+                break
+        
+        # If no match was found, it's a random URI
+        if not path_match and not path.startswith('/static/'):
             is_random_uri = True
     
     # Create the log entry
