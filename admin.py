@@ -413,26 +413,36 @@ def clear_logs():
     if request.args.get('key') != admin_key:
         return jsonify({'success': False, 'error': 'Unauthorized'}), 403
     
-    # Get log type from query parameter, default to all
-    log_type = request.args.get('log_type', 'all')
-    
-    # Clear the specified logs
-    if log_type == 'normal' or log_type == 'all':
-        log_cache['normal'] = []
-        if os.path.exists(NORMAL_LOG_FILE):
-            open(NORMAL_LOG_FILE, 'w').close()  # Clear file
-    
-    if log_type == 'admin' or log_type == 'all':
-        log_cache['admin'] = []
-        if os.path.exists(ADMIN_LOG_FILE):
-            open(ADMIN_LOG_FILE, 'w').close()  # Clear file
-    
-    if log_type == 'random_uri' or log_type == 'all':
-        log_cache['random_uri'] = []
-        if os.path.exists(RANDOM_URI_LOG_FILE):
-            open(RANDOM_URI_LOG_FILE, 'w').close()  # Clear file
-    
-    return jsonify({'success': True})
+    try:
+        # Get log type from query parameter, default to all
+        log_type = request.args.get('log_type', 'all')
+        
+        # Print debug info
+        print(f"Clearing logs of type: {log_type}")
+        
+        # Clear the specified logs
+        if log_type == 'normal' or log_type == 'all':
+            log_cache['normal'] = []
+            if os.path.exists(NORMAL_LOG_FILE):
+                with open(NORMAL_LOG_FILE, 'w') as f:
+                    f.write('')  # Clear file
+        
+        if log_type == 'admin' or log_type == 'all':
+            log_cache['admin'] = []
+            if os.path.exists(ADMIN_LOG_FILE):
+                with open(ADMIN_LOG_FILE, 'w') as f:
+                    f.write('')  # Clear file
+        
+        if log_type == 'random_uri' or log_type == 'all':
+            log_cache['random_uri'] = []
+            if os.path.exists(RANDOM_URI_LOG_FILE):
+                with open(RANDOM_URI_LOG_FILE, 'w') as f:
+                    f.write('')  # Clear file
+        
+        return jsonify({'success': True})
+    except Exception as e:
+        print(f"Error clearing logs: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 # Create the log directory and files if they don't exist
 def init_log_files():

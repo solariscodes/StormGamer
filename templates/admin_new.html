@@ -71,8 +71,10 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-logo">
-                    <i class="fas fa-bolt fa-lg"></i>
-                    <span>StormGamer</span>
+                    <a href="/" style="text-decoration: none; color: inherit; display: flex; align-items: center;">
+                        <i class="fas fa-bolt fa-lg"></i>
+                        <span>StormGamer</span>
+                    </a>
                 </div>
             </div>
             
@@ -708,12 +710,25 @@
                         // Get the current log type
                         const logType = '{{ active_tab }}';
                         
+                        // Debug
+                        console.log('Clearing logs of type:', logType);
+                        
                         fetch('/admin/clear-logs?key={{ key }}&log_type=' + logType, {
-                            method: 'POST'
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
                         })
-                        .then(response => response.json())
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok: ' + response.status);
+                            }
+                            return response.json();
+                        })
                         .then(data => {
                             if (data.success) {
+                                alert('Logs cleared successfully!');
                                 window.location.reload();
                             } else {
                                 alert('Failed to clear logs: ' + (data.error || 'Unknown error'));
@@ -721,7 +736,7 @@
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            alert('An error occurred while clearing logs');
+                            alert('An error occurred while clearing logs: ' + error.message);
                         });
                     }
                 });
