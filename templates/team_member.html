@@ -208,7 +208,13 @@
             <div class="member-profile">
                 <div class="member-sidebar">
                     <div class="member-image">
-                        <img src="{{ url_for('static', filename='images/team/placeholder-' + (loop.index|string if loop.index is defined else '1') + '.jpg') }}" alt="{{ member.name }}">
+                        {% set member_index = namespace(value=1) %}
+                        {% for m in editorial_team %}
+                            {% if m.name == member.name %}
+                                {% set member_index.value = loop.index %}
+                            {% endif %}
+                        {% endfor %}
+                        <img src="{{ url_for('static', filename='images/team/placeholder-' + member_index.value|string + '.jpg') }}" alt="{{ member.name }}">
                     </div>
                     <div class="member-info">
                         <h2>{{ member.name }}</h2>
@@ -257,7 +263,9 @@
                         
                         {% for game_name, game_img in games %}
                         <div class="game-item">
-                            <img src="{{ url_for('static', filename='images/games/placeholder.jpg') }}" alt="{{ game_name }}">
+                            <img src="{{ url_for('static', filename='images/games/placeholder.jpg') }}" 
+                                 alt="{{ game_name }}"
+                                 onerror="this.src='https://via.placeholder.com/80x80?text=Game'">
                             <span>{{ game_name }}</span>
                         </div>
                         {% endfor %}
