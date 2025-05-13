@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In / Sign Up - StormGamer</title>
+    <!-- Simple SVG favicon that will work reliably -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon/favicon.svg') }}" type="image/svg+xml">
+    <link rel="alternate icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}" type="image/x-icon">
+    <meta name="theme-color" content="#ff005c">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        .auth-container {
+            max-width: 500px;
+            margin: 3rem auto;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            padding-bottom: 2rem;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 1.5rem 0;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--gray-text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .auth-tab.active {
+            color: var(--accent-color);
+        }
+        
+        .auth-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: var(--accent-color);
+        }
+        
+        .auth-forms {
+            padding: 2rem;
+        }
+        
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
+            display: block;
+        }
+        
+        .auth-title {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--light-text);
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--gray-text);
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(0, 0, 0, 0.2);
+            color: var(--light-text);
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(255, 0, 92, 0.2);
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .remember-me input {
+            margin-right: 0.5rem;
+        }
+        
+        .remember-me label {
+            color: var(--gray-text);
+            font-size: 0.9rem;
+        }
+        
+        .forgot-password {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: block;
+            text-align: right;
+            margin-bottom: 1.5rem;
+        }
+        
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+        
+        .auth-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .auth-btn:hover {
+            background-color: var(--accent-hover);
+        }
+        
+        .social-login {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        
+        .social-login p {
+            color: var(--gray-text);
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        
+        .social-login p::before,
+        .social-login p::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 30%;
+            height: 1px;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .social-login p::before {
+            left: 0;
+        }
+        
+        .social-login p::after {
+            right: 0;
+        }
+        
+        .social-btns {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        .social-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--gray-text);
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .social-btn:hover {
+            color: white;
+            transform: translateY(-3px);
+        }
+        
+        .social-btn.discord:hover {
+            background-color: #7289DA;
+        }
+        
+        .social-btn.google:hover {
+            background-color: #DB4437;
+        }
+        
+        .social-btn.twitter:hover {
+            background-color: #1DA1F2;
+        }
+        
+        .back-to-home {
+            display: block;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--gray-text);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .back-to-home i {
+            margin-right: 5px;
+        }
+        
+        .back-to-home:hover {
+            color: var(--light-text);
+        }
+        
+        .auth-form-switch {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--gray-text);
+            font-size: 0.9rem;
+        }
+        
+        .auth-form-switch a {
+            color: var(--accent-color);
+            text-decoration: none;
+            margin-left: 5px;
+        }
+        
+        .auth-form-switch a:hover {
+            text-decoration: underline;
+        }
+
+        /* Gaming-themed visual elements */
+        .auth-container {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--accent-color), #4a1edb, #1e90ff);
+            z-index: 5;
+        }
+
+        .glow-effect {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 0, 92, 0.2) 0%, rgba(255, 0, 92, 0) 70%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .glow-1 {
+            top: -50px;
+            left: -50px;
+        }
+        
+        .glow-2 {
+            bottom: -50px;
+            right: -50px;
+            background: radial-gradient(circle, rgba(74, 30, 219, 0.2) 0%, rgba(74, 30, 219, 0) 70%);
+        }
+
+        @media (max-width: 600px) {
+            .auth-container {
+                margin: 2rem 1rem;
+            }
+            
+            .auth-forms {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body data-api-base-url="{{ api_base_url }}">
+    <header>
+        <div class="logo-container">
+            <a href="/" class="logo-link">
+                <div class="logo">
+                    <i class="fas fa-bolt"></i>
+                    <h1>StormGamer</h1>
+                </div>
+            </a>
+            <p class="tagline">Your Ultimate Gaming News Source</p>
+            <div class="search-container">
+                <form action="/search" method="get" id="search-form">
+                    <input type="text" name="q" id="search-input" placeholder="Search for gaming news..." required>
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="/"><i class="fas fa-newspaper"></i> News</a></li>
+                <li><a href="/team"><i class="fas fa-users"></i> Our Team</a></li>
+                <li class="active"><a href="/auth"><i class="fas fa-user"></i> Sign In / Register</a></li>
+                <li><a href="#" id="theme-toggle"><i class="fas fa-moon"></i> <span id="theme-text">Light Mode</span></a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <div class="container">
+            <div class="auth-container">
+                <div class="glow-effect glow-1"></div>
+                <div class="glow-effect glow-2"></div>
+                
+                <div class="auth-tabs">
+                    <div class="auth-tab active" data-form="signin-form">Sign In</div>
+                    <div class="auth-tab" data-form="signup-form">Sign Up</div>
+                </div>
+                
+                <div class="auth-forms">
+                    <!-- Sign In Form -->
+                    <div class="auth-form active" id="signin-form">
+                        <h2 class="auth-title">Welcome Back, Gamer</h2>
+                        
+                        <form action="#" method="post">
+                            <div class="input-group">
+                                <label for="signin-email">Email Address</label>
+                                <input type="email" id="signin-email" name="email" required placeholder="your@email.com">
+                            </div>
+                            
+                            <div class="input-group">
+                                <label for="signin-password">Password</label>
+                                <input type="password" id="signin-password" name="password" required placeholder="••••••••">
+                            </div>
+                            
+                            <div class="remember-me">
+                                <input type="checkbox" id="remember-me" name="remember-me">
+                                <label for="remember-me">Remember me</label>
+                            </div>
+                            
+                            <a href="#" class="forgot-password">Forgot password?</a>
+                            
+                            <button type="submit" class="auth-btn">Sign In</button>
+                        </form>
+                        
+                        <div class="social-login">
+                            <p>Or sign in with</p>
+                            <div class="social-btns">
+                                <a href="#" class="social-btn discord"><i class="fab fa-discord"></i></a>
+                                <a href="#" class="social-btn google"><i class="fab fa-google"></i></a>
+                                <a href="#" class="social-btn twitter"><i class="fab fa-twitter"></i></a>
+                            </div>
+                        </div>
+                        
+                        <div class="auth-form-switch">
+                            Don't have an account?<a href="#" data-switch-to="signup-form">Sign up now</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Sign Up Form -->
+                    <div class="auth-form" id="signup-form">
+                        <h2 class="auth-title">Join The Storm</h2>
+                        
+                        <form action="#" method="post">
+                            <div class="input-group">
+                                <label for="signup-username">Username</label>
+                                <input type="text" id="signup-username" name="username" required placeholder="Choose a username">
+                            </div>
+                            
+                            <div class="input-group">
+                                <label for="signup-email">Email Address</label>
+                                <input type="email" id="signup-email" name="email" required placeholder="your@email.com">
+                            </div>
+                            
+                            <div class="input-group">
+                                <label for="signup-password">Password</label>
+                                <input type="password" id="signup-password" name="password" required placeholder="Choose a secure password">
+                            </div>
+                            
+                            <div class="input-group">
+                                <label for="signup-confirm-password">Confirm Password</label>
+                                <input type="password" id="signup-confirm-password" name="confirm-password" required placeholder="Confirm your password">
+                            </div>
+                            
+                            <div class="remember-me">
+                                <input type="checkbox" id="agree-terms" name="agree-terms" required>
+                                <label for="agree-terms">I agree to the <a href="#" style="color: var(--accent-color)">Terms</a> and <a href="#" style="color: var(--accent-color)">Privacy Policy</a></label>
+                            </div>
+                            
+                            <button type="submit" class="auth-btn">Create Account</button>
+                        </form>
+                        
+                        <div class="social-login">
+                            <p>Or sign up with</p>
+                            <div class="social-btns">
+                                <a href="#" class="social-btn discord"><i class="fab fa-discord"></i></a>
+                                <a href="#" class="social-btn google"><i class="fab fa-google"></i></a>
+                                <a href="#" class="social-btn twitter"><i class="fab fa-twitter"></i></a>
+                            </div>
+                        </div>
+                        
+                        <div class="auth-form-switch">
+                            Already have an account?<a href="#" data-switch-to="signin-form">Sign in</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <a href="/" class="back-to-home"><i class="fas fa-arrow-left"></i> Back to Home</a>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <i class="fas fa-bolt"></i>
+                <h2>StormGamer</h2>
+            </div>
+            <div class="social-links">
+                <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-discord"></i></a>
+            </div>
+            <p>&copy; 2025 StormGamer. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        // Tab switching functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.auth-tab');
+            const forms = document.querySelectorAll('.auth-form');
+            const switchLinks = document.querySelectorAll('[data-switch-to]');
+            
+            // Tab click handler
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const formId = tab.getAttribute('data-form');
+                    
+                    // Update active tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Show corresponding form
+                    forms.forEach(form => {
+                        form.classList.remove('active');
+                        if (form.id === formId) {
+                            form.classList.add('active');
+                        }
+                    });
+                });
+            });
+            
+            // Form switch links
+            switchLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const formId = link.getAttribute('data-switch-to');
+                    
+                    // Update active tab
+                    tabs.forEach(tab => {
+                        tab.classList.remove('active');
+                        if (tab.getAttribute('data-form') === formId) {
+                            tab.classList.add('active');
+                        }
+                    });
+                    
+                    // Show corresponding form
+                    forms.forEach(form => {
+                        form.classList.remove('active');
+                        if (form.id === formId) {
+                            form.classList.add('active');
+                        }
+                    });
+                });
+            });
+            
+            // Add glow effect that follows cursor
+            const authContainer = document.querySelector('.auth-container');
+            const glowEffects = document.querySelectorAll('.glow-effect');
+            
+            authContainer.addEventListener('mousemove', (e) => {
+                const containerRect = authContainer.getBoundingClientRect();
+                const mouseX = e.clientX - containerRect.left;
+                const mouseY = e.clientY - containerRect.top;
+                
+                // Update glow position with slight delay for smoother effect
+                setTimeout(() => {
+                    glowEffects[0].style.left = `${mouseX - 75}px`;
+                    glowEffects[0].style.top = `${mouseY - 75}px`;
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html> 

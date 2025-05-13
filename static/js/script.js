@@ -8,6 +8,46 @@ document.addEventListener('DOMContentLoaded', function() {
     const savedTheme = localStorage.getItem('theme') || 'dark';
     setTheme(savedTheme);
     
+    // Global image error handling
+    setupImageErrorHandling();
+    
+    // Function to set up global image error handling
+    function setupImageErrorHandling() {
+        // Find all images on the page
+        const images = document.querySelectorAll('img');
+        
+        // Add error handlers to each image
+        images.forEach(img => {
+            if (!img.hasAttribute('onerror')) {
+                img.onerror = function() {
+                    const altText = this.alt || 'StormGamer';
+                    const truncatedText = altText.length > 15 ? altText.substring(0, 15) + '...' : altText;
+                    
+                    // Use our local placeholder generator
+                    this.src = `/placeholder/400x200/${encodeURIComponent(truncatedText)}`;
+                    
+                    // Prevent infinite error loop
+                    this.onerror = null;
+                };
+            }
+        });
+    }
+    
+    // Generate a color hash from a string
+    function generateColorHash(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        
+        let color = '';
+        for (let i = 0; i < 3; i++) {
+            const value = (hash >> (i * 8)) & 0xFF;
+            color += ('00' + value.toString(16)).slice(-2);
+        }
+        return color;
+    }
+    
     // Toggle theme when button is clicked
     themeToggle.addEventListener('click', function(e) {
         e.preventDefault();
@@ -44,6 +84,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const mainContentArea = document.querySelector('.main-content');
     const heroSection = document.querySelector('.hero');
     
+    // Get API base URL from the page
+    const apiBaseUrl = document.body.getAttribute('data-api-base-url') || "https://web-production-cfff.up.railway.app";
+    const articlesEndpoint = `${apiBaseUrl}/articles`;
+    
     // Check if we're on the article page
     const articleView = document.querySelector('.full-article');
     if (articleView) {
@@ -60,23 +104,49 @@ document.addEventListener('DOMContentLoaded', function() {
         isLoading = true;
         showLoadingIndicator();
         
-        fetch(`/api/articles?page=${currentPage}&per_page=${perPage}`)
+        // Direct call to the remote API
+        fetch(articlesEndpoint)
             .then(response => response.json())
-            .then(articles => {
+            .then(data => {
                 // Remove loading indicator
                 hideLoadingIndicator();
                 
+                // Process the API response
+                let articles = [];
+                
+                // Check if the response is a list or if articles are nested in the response
+                if (Array.isArray(data)) {
+                    articles = data;
+                } else if (data && data.articles && Array.isArray(data.articles)) {
+                    articles = data.articles;
+                }
+                
+                // Apply pagination manually
+                const start = (currentPage - 1) * perPage;
+                const end = start + perPage;
+                const pagedArticles = articles.slice(start, end);
+                
                 // If no articles or empty array, no more items to load
-                if (!articles || articles.length === 0) {
+                if (!pagedArticles || pagedArticles.length === 0) {
                     hasMoreItems = false;
                     addNoMoreContent();
                     return;
                 }
                 
-                // Append articles to the container
-                articles.forEach(article => {
+                // Process each article before displaying
+                pagedArticles.forEach(article => {
+                    // Add full image URL if local path exists
+                    if (article.local_image_path) {
+                        article.full_image_url = `${apiBaseUrl}/${article.local_image_path}`;
+                    }
                     appendArticleCard(article);
                 });
+                
+                // Store all articles for future use
+                cachedArticles = articles;
+                
+                // Setup image error handling for newly added images
+                setupImageErrorHandling();
                 
                 // Increment page for the next load
                 currentPage++;
@@ -108,13 +178,17 @@ document.addEventListener('DOMContentLoaded', function() {
         // Use Editorial instead of editor names
         const editorLabel = 'Editorial';
         
-        // Use placeholder image if no image available
-        const imageUrl = article.full_image_url || 'https://via.placeholder.com/400x200?text=StormGamer';
+        const title = article.title || 'Gaming News';
+        const truncatedTitle = title.length > 15 ? title.substring(0, 15) + '...' : title;
+        
+        // Use placeholder image if no image available with our local generator
+        const imageUrl = article.full_image_url || `/placeholder/400x200/${encodeURIComponent(truncatedTitle)}`;
         
         card.innerHTML = `
-            <img src="${imageUrl}" alt="${article.title || 'Gaming News'}" class="news-img" onerror="this.src='https://via.placeholder.com/400x200?text=StormGamer'">
+            <img src="${imageUrl}" alt="${title}" class="news-img" 
+                 onerror="this.onerror=null; this.src='/placeholder/400x200/${encodeURIComponent(truncatedTitle)}'">
             <div class="news-content">
-                <h3 class="news-title">${article.title || 'No Title Available'}</h3>
+                <h3 class="news-title">${title}</h3>
                 <div class="news-meta">
                     <span><i class="far fa-newspaper"></i> ${editorLabel}</span>
                     <span><i class="fas fa-share-alt"></i> Share</span>
@@ -207,7 +281,30 @@ document.addEventListener('DOMContentLoaded', function() {
         // Set the browser URL to match the article being viewed without page reload
         history.pushState({articleId: articleId}, '', `/article/${articleId}`);
         
-        // Fetch the article content
+        // Try to find article in cached articles first
+        const article = cachedArticles.find(a => a.id == articleId);
+        
+        if (article) {
+            hideLoadingIndicator();
+            
+            // Add full image URL if local path exists
+            if (article.local_image_path) {
+                article.full_image_url = `${apiBaseUrl}/${article.local_image_path}`;
+            }
+            
+            // Format the content with paragraphs if it exists
+            if (article.content) {
+                let content = article.content;
+                content = content.replace('. ', '.</p><p>');
+                article.formatted_content = `<p>${content}</p>`;
+            }
+            
+            displayArticle(article);
+            isLoading = false;
+            return;
+        }
+        
+        // If not in cache, fetch from backend which will call the remote API
         fetch(`/api/article/${articleId}`)
             .then(response => {
                 if (!response.ok) {
@@ -219,11 +316,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 hideLoadingIndicator();
                 displayArticle(article);
                 isLoading = false;
-                
-                // If we don't have cached articles yet, load some for the "Next Article" feature
-                if (cachedArticles.length === 0) {
-                    loadMoreArticles();
-                }
             })
             .catch(error => {
                 console.error('Error loading article:', error);
@@ -236,6 +328,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to display a single article
     function displayArticle(article) {
         isSingleArticleView = true;
+        currentArticleId = article.id;
         
         // Hide the hero section with search and title
         if (heroSection) heroSection.style.display = 'none';
@@ -243,11 +336,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Change the news container to full width instead of grid
         newsContainer.classList.add('article-view-mode');
         
+        const title = article.title || 'Article';
+        const truncatedTitle = title.length > 20 ? title.substring(0, 20) + '...' : title;
+        
         // Create a full article layout that will fill the entire column
         const articleHTML = `
             <div class="single-article-card">
                 
-                <h1 class="article-title">${article.title || 'No Title Available'}</h1>
+                <h1 class="article-title">${title}</h1>
                 
                 <div class="article-meta-info">
                     <span class="article-author">
@@ -256,9 +352,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 
                 <div class="article-featured-image">
-                    <img src="${article.full_image_url || 'https://via.placeholder.com/1200x600?text=StormGamer'}" 
-                         alt="${article.title || 'Article'}" 
-                         onerror="this.src='https://via.placeholder.com/1200x600?text=StormGamer'">
+                    <img src="${article.full_image_url || `/placeholder/1200x600/${encodeURIComponent(truncatedTitle)}`}" 
+                         alt="${title}" 
+                         onerror="this.onerror=null; this.src='/placeholder/1200x600/${encodeURIComponent(truncatedTitle)}'">
                 </div>
                 
                 <div class="article-full-content">
@@ -293,8 +389,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Scroll to top
         window.scrollTo(0, 0);
         
+        // Setup any new images that were added
+        setupImageErrorHandling();
+        
         // Update document title
-        document.title = `${article.title || 'Article'} - StormGamer`;
+        document.title = `${title} - StormGamer`;
     }
     
     // Array of editor names

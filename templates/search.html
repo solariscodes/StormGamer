@@ -94,7 +94,7 @@
         }
     </style>
 </head>
-<body>
+<body data-api-base-url="{{ api_base_url }}">
     <header>
         <div class="logo-container">
             <a href="/" class="logo-link">
@@ -115,7 +115,7 @@
             <ul>
                 <li><a href="/"><i class="fas fa-newspaper"></i> News</a></li>
                 <li><a href="/team"><i class="fas fa-users"></i> Our Team</a></li>
-                <li><a href="#"><i class="fas fa-user"></i> Sign In / Register</a></li>
+                <li><a href="{{ url_for('auth') }}"><i class="fas fa-user"></i> Sign In / Register</a></li>
                 <li><a href="#" id="theme-toggle"><i class="fas fa-moon"></i> <span id="theme-text">Light Mode</span></a></li>
             </ul>
         </nav>
@@ -145,11 +145,11 @@
                 </style>
                 <div class="search-results-grid">
                     {% for article in articles %}
-                        <div class="news-card" data-article-id="{{ article.id }}">
+                        <div class="news-card" data-article-id="{{ article.id }}" onclick="window.location.href='/article/{{ article.id }}';" style="cursor: pointer;">
                             <div class="news-img-container">
-                                <img src="{{ article.full_image_url if article.full_image_url else 'https://via.placeholder.com/400x200?text=StormGamer' }}" 
+                                <img src="{{ article.full_image_url if article.full_image_url else url_for('generate_placeholder', width=400, height=200, text=article.title|truncate(15, True)) }}" 
                                      alt="{{ article.title }}" class="news-img" 
-                                     onerror="this.src='https://via.placeholder.com/400x200?text=StormGamer'">
+                                     onerror="this.onerror=null; this.src='{{ url_for('generate_placeholder', width=400, height=200, text=article.title|truncate(15, True)) }}'">
                                 <div class="news-overlay">
                                     <span class="read-more">Read More</span>
                                 </div>

@@ -1,12 +1,61 @@
-from flask import Flask, render_template, jsonify, request, abort
+from flask import Flask, render_template, jsonify, request, abort, redirect, Response
 import requests
 import os
+import hashlib
 from admin import admin_bp, log_request
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
 # Register the admin blueprint
 app.register_blueprint(admin_bp)
+
+# Custom Jinja2 filters
+@app.template_filter('hash')
+def hash_filter(value):
+    """Convert a string to a 6-character hex color code."""
+    hash_obj = hashlib.md5(str(value).encode())
+    # Return the first 6 characters of the hex digest to use as a color code
+    return hash_obj.hexdigest()[:6]
+
+# Placeholder SVG text generation route - much simpler than PIL
+@app.route('/placeholder/<width>x<height>/<text>')
+def generate_placeholder(width, height, text):
+    """Generate a placeholder SVG with the given dimensions and text."""
+    try:
+        # Convert dimensions to integers
+        width = int(width)
+        height = int(height)
+        
+        # Limit dimensions for security
+        width = min(max(width, 50), 1200)
+        height = min(max(height, 50), 800)
+        
+        # Create SVG with white text on black background
+        svg = f'''
+        <svg width="{width}" height="{height}" xmlns="http://www.w3.org/2000/svg">
+            <rect width="{width}" height="{height}" fill="black"/>
+            <text 
+                x="50%" 
+                y="50%" 
+                dominant-baseline="middle" 
+                text-anchor="middle"
+                fill="white" 
+                font-family="Arial, sans-serif" 
+                font-size="{min(width, height) // 10}px">
+                {text}
+            </text>
+        </svg>
+        '''
+        
+        return Response(svg, mimetype='image/svg+xml')
+    except Exception as e:
+        # If anything goes wrong, return a simple black SVG
+        svg = f'''
+        <svg width="{width}" height="{height}" xmlns="http://www.w3.org/2000/svg">
+            <rect width="{width}" height="{height}" fill="black"/>
+        </svg>
+        '''
+        return Response(svg, mimetype='image/svg+xml')
 
 # ADMIN key must be set as an environment variable
 # No default key for security reasons
@@ -75,7 +124,7 @@ EDITORIAL_TEAM = [
 
 @app.route('/')
 def index():
-    return render_template('index.html', editorial_team=EDITORIAL_TEAM)
+    return render_template('index.html', editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL)
 
 @app.route('/article/<article_id>')
 def article(article_id):
@@ -102,8 +151,11 @@ def article(article_id):
             # Check if this is the article we're looking for
             if str(article.get('id', '')) == article_id:
                 # Add full image URL if local path exists
-                if 'local_image_path' in article:
+                if 'local_image_path' in article and article['local_image_path']:
                     article['full_image_url'] = f"{API_BASE_URL}/{article['local_image_path']}"
+                # Ensure we have an ID for generating color hash fallbacks
+                if 'id' not in article:
+                    article['id'] = article_id
                 
                 # Format the content with paragraphs if it exists
                 if 'content' in article and article['content']:
@@ -118,7 +170,7 @@ def article(article_id):
                 break
         
         if article_found:
-            return render_template('article.html', article=article_found, editorial_team=EDITORIAL_TEAM)
+            return render_template('article.html', article=article_found, editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL)
     
     # Article not found
     abort(404)
@@ -170,54 +222,6 @@ def api_article(article_id):
     # Article not found
     return jsonify({'error': 'Article not found'}), 404
 
-@app.route('/api/articles')
-def get_articles():
-    # Get pagination parameters from request
-    page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 10, type=int)
-    
-    # Call the external API
-    response = requests.get(ARTICLES_ENDPOINT)
-    
-    if response.status_code == 200:
-        data = response.json()
-        
-        # Check if the response is a list or if articles are nested in the response
-        if isinstance(data, list):
-            articles = data
-        elif isinstance(data, dict) and 'articles' in data:
-            articles = data['articles']
-        else:
-            # Handle unexpected data structure
-            return jsonify([])
-        
-        # Process each article
-        processed_articles = []
-        for article in articles:
-            # Handle case where article might be a string or other non-dict
-            if not isinstance(article, dict):
-                continue
-                
-            # Add full image URL if local path exists
-            if 'local_image_path' in article:
-                article['full_image_url'] = f"{API_BASE_URL}/{article['local_image_path']}"
-            
-            processed_articles.append(article)
-        
-        # Simple pagination
-        start_idx = (page - 1) * per_page
-        end_idx = start_idx + per_page
-        
-        # Ensure we don't go out of bounds
-        if start_idx >= len(processed_articles):
-            return jsonify([])
-            
-        paginated_articles = processed_articles[start_idx:min(end_idx, len(processed_articles))]
-        
-        return jsonify(paginated_articles)
-    
-    return jsonify([])
-
 @app.route('/search')
 def search():
     # Get the search query from the request
@@ -230,7 +234,7 @@ def search():
     response = requests.get(ARTICLES_ENDPOINT)
     
     if response.status_code != 200:
-        return render_template('search.html', query=query, articles=[], editorial_team=EDITORIAL_TEAM)
+        return render_template('search.html', query=query, articles=[], editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL)
     
     data = response.json()
     
@@ -249,7 +253,7 @@ def search():
             continue
             
         # Add full image URL if local path exists
-        if 'local_image_path' in article:
+        if 'local_image_path' in article and article['local_image_path']:
             article['full_image_url'] = f"{API_BASE_URL}/{article['local_image_path']}"
         
         # Check if the query appears in the title, content, or author
@@ -260,12 +264,12 @@ def search():
         if query in title or query in content or query in author:
             search_results.append(article)
     
-    return render_template('search.html', query=query, articles=search_results, editorial_team=EDITORIAL_TEAM)
+    return render_template('search.html', query=query, articles=search_results, editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL)
 
 @app.route('/team')
 def team():
     """Page for the editorial team"""
-    return render_template('team.html', editorial_team=EDITORIAL_TEAM)
+    return render_template('team.html', editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL)
 
 @app.route('/team/<member_name>')
 def team_member(member_name):
@@ -280,9 +284,14 @@ def team_member(member_name):
             break
     
     if member_found:
-        return render_template('team_member.html', member=member_found, editorial_team=EDITORIAL_TEAM)
+        return render_template('team_member.html', member=member_found, editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL)
     else:
         abort(404)  # Member not found
+
+@app.route('/auth')
+def auth():
+    """Page for sign in and sign up"""
+    return render_template('auth.html', editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL)
 
 if __name__ == '__main__':
     import os
