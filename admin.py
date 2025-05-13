@@ -2,6 +2,7 @@ import os
 import time
 import json
 import logging
+import re  # Add import at the top level
 from datetime import datetime, timedelta
 from collections import Counter, defaultdict
 from flask import Blueprint, render_template, request, redirect, url_for, abort, current_app, jsonify
@@ -136,7 +137,6 @@ def log_request(request):
             route_pattern = route
             if '<' in route:
                 # Replace Flask route parameters with regex wildcards
-                import re
                 route_pattern = re.sub(r'<(?:[^:>]+:)?([^>]+)>', r'[^/]+', route_pattern)
             
             # Check if path matches the route pattern
