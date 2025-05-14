@@ -392,6 +392,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 }
                 
+                // Set up share buttons for dynamic content
+                setupShareButtons(article.title);
+                
                 // Add the article.css styles if they're not already added
                 if (!document.getElementById('article-styles')) {
                     const articleStyles = document.createElement('link');
@@ -429,6 +432,36 @@ document.addEventListener('DOMContentLoaded', function() {
                 showErrorMessage('Failed to load the article. Please try again.');
                 isLoading = false;
             });
+    }
+    
+    // Function to set up share buttons with the correct URLs
+    function setupShareButtons(articleTitle) {
+        const shareButtons = document.querySelectorAll('.share-icon');
+        const currentUrl = window.location.href;
+        
+        shareButtons.forEach(button => {
+            const platform = button.querySelector('i').className;
+            
+            if (platform.includes('twitter')) {
+                button.href = `https://twitter.com/intent/tweet?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(articleTitle)}`;
+                button.title = "Share on Twitter";
+            } 
+            else if (platform.includes('facebook')) {
+                button.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}`;
+                button.title = "Share on Facebook";
+            } 
+            else if (platform.includes('linkedin')) {
+                button.href = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(currentUrl)}&title=${encodeURIComponent(articleTitle)}`;
+                button.title = "Share on LinkedIn";
+            } 
+            else if (platform.includes('reddit')) {
+                button.href = `https://www.reddit.com/submit?url=${encodeURIComponent(currentUrl)}&title=${encodeURIComponent(articleTitle)}`;
+                button.title = "Share on Reddit";
+            }
+            
+            // Make sure all share buttons open in a new tab
+            button.setAttribute('target', '_blank');
+        });
     }
     
     // Array of editor names

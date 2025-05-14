@@ -191,8 +191,24 @@
 }
 
 .share-icon:hover {
-    background-color: var(--primary-color);
-    color: var(--light-text);
+    transform: translateY(-2px);
+    color: #fff;
+}
+
+.share-icon i.fa-twitter:hover, .share-icon:hover i.fa-twitter {
+    color: #1DA1F2;
+}
+
+.share-icon i.fa-facebook-f:hover, .share-icon:hover i.fa-facebook-f {
+    color: #4267B2;
+}
+
+.share-icon i.fa-linkedin-in:hover, .share-icon:hover i.fa-linkedin-in {
+    color: #0077B5;
+}
+
+.share-icon i.fa-reddit-alien:hover, .share-icon:hover i.fa-reddit-alien {
+    color: #FF5700;
 }
 
 .tag {
