@@ -160,6 +160,10 @@ def article(article_id):
                 if 'id' not in article:
                     article['id'] = article_id
                 
+                # Only process articles with images
+                if not ('full_image_url' in article or ('local_image_path' in article and article['local_image_path'])):
+                    abort(404)
+                    
                 # Format the content with paragraphs if it exists
                 if 'content' in article and article['content']:
                     # Split by periods followed by space and rejoin with paragraph tags
@@ -175,7 +179,9 @@ def article(article_id):
         if article_found:
             # For direct access, we already log the request via the before_request handler
             # Make all articles available to the template for the "Next Article" feature
-            return render_template('article.html', article=article_found, all_articles=articles, 
+            # Filter articles to only include those with images
+            articles_with_images = [a for a in articles if 'full_image_url' in a or ('local_image_path' in a and a['local_image_path'])]
+            return render_template('article.html', article=article_found, all_articles=articles_with_images, 
                                   editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL,
                                   is_fragment=is_fragment)
     
@@ -253,7 +259,7 @@ def search():
     else:
         articles = []
     
-    # Filter articles based on the search query
+    # Filter articles based on the search query and ensure they have images
     search_results = []
     for article in articles:
         if not isinstance(article, dict):
@@ -262,6 +268,10 @@ def search():
         # Add full image URL if local path exists
         if 'local_image_path' in article and article['local_image_path']:
             article['full_image_url'] = f"{API_BASE_URL}/{article['local_image_path']}"
+        
+        # Skip articles without images
+        if not (article.get('full_image_url') or (article.get('local_image_path') and article['local_image_path'].strip())):
+            continue
         
         # Check if the query appears in the title, content, or author
         title = article.get('title', '').lower()

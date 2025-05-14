@@ -121,11 +121,7 @@
                 
                 <div class="article-hero">
                     {% if article.full_image_url %}
-                        <img src="{{ article.full_image_url }}" alt="{{ article.title }}" class="article-image"
-                             onerror="this.onerror=null; this.src='{{ url_for('generate_placeholder', width=1200, height=600, text=article.title|truncate(20, True)) }}'">
-                    {% else %}
-                        <img src="{{ url_for('generate_placeholder', width=1200, height=600, text=article.title|truncate(20, True)) }}" 
-                             alt="{{ article.title }}" class="article-image">
+                        <img src="{{ article.full_image_url }}" alt="{{ article.title }}" class="article-image">
                     {% endif %}
                 </div>
                 

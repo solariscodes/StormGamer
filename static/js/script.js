@@ -121,6 +121,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     articles = data.articles;
                 }
                 
+                // Filter out articles without images
+                articles = articles.filter(article => article.full_image_url || (article.local_image_path && article.local_image_path.trim() !== ''));
+                
                 // Apply pagination manually
                 const start = (currentPage - 1) * perPage;
                 const end = start + perPage;
@@ -179,14 +182,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const editorLabel = 'Editorial';
         
         const title = article.title || 'Gaming News';
-        const truncatedTitle = title.length > 15 ? title.substring(0, 15) + '...' : title;
         
-        // Use placeholder image if no image available with our local generator
-        const imageUrl = article.full_image_url || `/placeholder/400x200/${encodeURIComponent(truncatedTitle)}`;
+        // Only include articles with images
+        if (!article.full_image_url) return;
         
         card.innerHTML = `
-            <img src="${imageUrl}" alt="${title}" class="news-img" 
-                 onerror="this.onerror=null; this.src='/placeholder/400x200/${encodeURIComponent(truncatedTitle)}'">
+            <img src="${article.full_image_url}" alt="${title}" class="news-img">
             <div class="news-content">
                 <h3 class="news-title">${title}</h3>
                 <div class="news-meta">
@@ -305,6 +306,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 article.full_image_url = `${apiBaseUrl}/${article.local_image_path}`;
             }
             
+            // Skip articles without images
+            if (!article.full_image_url) {
+                hideLoadingIndicator();
+                showErrorMessage('This article is not available.');
+                isLoading = false;
+                return;
+            }
+            
             // Format the content with paragraphs if it exists
             if (article.content) {
                 let content = article.content;
@@ -325,6 +334,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(article => {
+                // Skip articles without images
+                if (!article.full_image_url && (!article.local_image_path || article.local_image_path.trim() === '')) {
+                    hideLoadingIndicator();
+                    showErrorMessage('This article is not available.');
+                    isLoading = false;
+                    return;
+                }
+                
                 displayArticle(article);
             })
             .catch(error => {
