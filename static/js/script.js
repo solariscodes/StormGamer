@@ -450,10 +450,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 button.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}`;
                 button.title = "Share on Facebook";
             } 
-            else if (platform.includes('linkedin')) {
-                button.href = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(currentUrl)}&title=${encodeURIComponent(articleTitle)}`;
-                button.title = "Share on LinkedIn";
-            } 
             else if (platform.includes('reddit')) {
                 button.href = `https://www.reddit.com/submit?url=${encodeURIComponent(currentUrl)}&title=${encodeURIComponent(articleTitle)}`;
                 button.title = "Share on Reddit";
