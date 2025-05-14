@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% if not is_fragment|default(false) %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -103,12 +104,12 @@
             </ul>
         </nav>
     </header>
+{% endif %}
     
     <main>
         <div class="article-container">
             <article class="full-article">
                 <div class="article-meta">
-                    <a href="/" class="back-button"><i class="fas fa-arrow-left"></i> Back to News</a>
                     <div class="article-date">
                         {% if article.date %}
                             <i class="far fa-calendar-alt"></i> {{ article.date }}
@@ -156,6 +157,12 @@
                         {% endif %}
                     </div>
                 </div>
+                
+                <!-- Simple text links for navigation -->
+                <div class="back-to-news">
+                    <span class="back-link"><a href="/" class="simple-link"><i class="fas fa-arrow-left"></i> Back to News</a></span>
+                    <span class="next-link"><a href="javascript:void(0)" onclick="loadNextArticle()" class="simple-link">Next Article <i class="fas fa-arrow-right"></i></a></span>
+                </div>
             </article>
             
             <div class="homepage-sidebar">
@@ -194,6 +201,7 @@
         </div>
     </main>
     
+{% if not is_fragment|default(false) %}
     <footer>
         <div class="footer-content">
             <div class="footer-logo">
@@ -212,3 +220,4 @@
     </footer>
 </body>
 </html>
+{% endif %}

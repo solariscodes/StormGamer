@@ -270,7 +270,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to load an article without full page reload
     function loadArticleContent(articleId) {
         isLoading = true;
-        showLoadingIndicator();
         
         // Save the current article ID
         currentArticleId = articleId;
@@ -278,18 +277,29 @@ document.addEventListener('DOMContentLoaded', function() {
         // Save the current scroll position
         localStorage.setItem('scrollPosition', window.scrollY);
         
+        // First scroll to top immediately to avoid the page loading at the current scroll position
+        window.scrollTo(0, 0);
+        
         // Set the browser URL to match the article being viewed without page reload
         history.pushState({articleId: articleId}, '', `/article/${articleId}`);
         
         // Send a ping to track this article view - we do this since we don't navigate to a new page
         fetch(`/track-view/article/${articleId}`, { method: 'GET' });
         
+        // Clear current content and show loading indicator immediately
+        newsContainer.innerHTML = '';
+        showLoadingIndicator();
+        
+        // Hide the hero section with search and title
+        if (heroSection) heroSection.style.display = 'none';
+        
+        // Change the news container to full width instead of grid
+        newsContainer.classList.add('article-view-mode');
+        
         // Try to find article in cached articles first
         const article = cachedArticles.find(a => a.id == articleId);
         
         if (article) {
-            hideLoadingIndicator();
-            
             // Add full image URL if local path exists
             if (article.local_image_path) {
                 article.full_image_url = `${apiBaseUrl}/${article.local_image_path}`;
@@ -303,7 +313,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             displayArticle(article);
-            isLoading = false;
             return;
         }
         
@@ -316,9 +325,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(article => {
-                hideLoadingIndicator();
                 displayArticle(article);
-                isLoading = false;
             })
             .catch(error => {
                 console.error('Error loading article:', error);
@@ -333,70 +340,95 @@ document.addEventListener('DOMContentLoaded', function() {
         isSingleArticleView = true;
         currentArticleId = article.id;
         
-        // Hide the hero section with search and title
-        if (heroSection) heroSection.style.display = 'none';
-        
-        // Change the news container to full width instead of grid
-        newsContainer.classList.add('article-view-mode');
-        
-        const title = article.title || 'Article';
-        const truncatedTitle = title.length > 20 ? title.substring(0, 20) + '...' : title;
-        
-        // Create a full article layout that will fill the entire column
-        const articleHTML = `
-            <div class="single-article-card">
+        // Instead of building HTML manually, fetch the complete article HTML from the server
+        fetch(`/article/${article.id}?format=fragment`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to load article');
+                }
+                return response.text();
+            })
+            .then(html => {
+                // Hide loading indicator before showing content
+                hideLoadingIndicator();
                 
-                <h1 class="article-title">${title}</h1>
+                // Parse the HTML
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
                 
-                <div class="article-meta-info">
-                    <span class="article-author">
-                        <i class="far fa-newspaper"></i> Editorial
-                    </span>
-                </div>
+                // Extract just the article content, not the entire container with sidebar
+                const articleElement = tempDiv.querySelector('.full-article');
+                if (articleElement) {
+                    // Apply full-width style to the article element
+                    articleElement.style.width = '100%';
+                    articleElement.style.maxWidth = '100%';
+                    
+                    // Create a styled container for the article
+                    const articleContainer = document.createElement('div');
+                    articleContainer.className = 'article-container';
+                    articleContainer.style.display = 'block'; // Override the flex layout
+                    articleContainer.style.width = '100%';
+                    articleContainer.style.maxWidth = '1200px';
+                    articleContainer.style.margin = '0 auto';
+                    articleContainer.style.padding = '0 20px';
+                    
+                    // Add the article to the container
+                    articleContainer.appendChild(articleElement);
+                    
+                    // Replace news container with just the article content
+                    newsContainer.innerHTML = '';
+                    newsContainer.appendChild(articleContainer);
+                } else {
+                    // Fallback if we can't find the article element
+                    newsContainer.innerHTML = html;
+                }
                 
-                <div class="article-featured-image">
-                    <img src="${article.full_image_url || `/placeholder/1200x600/${encodeURIComponent(truncatedTitle)}`}" 
-                         alt="${title}" 
-                         onerror="this.onerror=null; this.src='/placeholder/1200x600/${encodeURIComponent(truncatedTitle)}'">
-                </div>
+                // Add back button functionality
+                const backButton = newsContainer.querySelector('.simple-link');
+                if (backButton) {
+                    backButton.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        showNewsList();
+                    });
+                }
                 
-                <div class="article-full-content">
-                    ${article.formatted_content || article.content || '<p>No content available for this article.</p>'}
-                </div>
+                // Add the article.css styles if they're not already added
+                if (!document.getElementById('article-styles')) {
+                    const articleStyles = document.createElement('link');
+                    articleStyles.id = 'article-styles';
+                    articleStyles.rel = 'stylesheet';
+                    articleStyles.href = '/static/css/article.css';
+                    document.head.appendChild(articleStyles);
+                }
                 
-                <div class="article-footer">
-                    <div class="share-buttons">
-                        <span>Share:</span>
-                        <a href="#" class="share-icon"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="share-icon"><i class="fab fa-facebook-f"></i></a>
-                    </div>
-                    <a href="javascript:void(0)" onclick="loadNextArticle()" class="more-articles-link">
-                        <i class="fas fa-arrow-right"></i> Next Article
-                    </a>
-                </div>
-            </div>
-        `;
-        
-        // Replace the news container content
-        newsContainer.innerHTML = articleHTML;
-        
-        // Add the article.css styles if they're not already added
-        if (!document.getElementById('article-styles')) {
-            const articleStyles = document.createElement('link');
-            articleStyles.id = 'article-styles';
-            articleStyles.rel = 'stylesheet';
-            articleStyles.href = '/static/css/article.css';
-            document.head.appendChild(articleStyles);
-        }
-        
-        // Scroll to top
-        window.scrollTo(0, 0);
-        
-        // Setup any new images that were added
-        setupImageErrorHandling();
-        
-        // Update document title
-        document.title = `${title} - StormGamer`;
+                // Add additional inline styles to ensure full width
+                const styleEl = document.createElement('style');
+                styleEl.textContent = `
+                    .article-view-mode .article-container {
+                        display: block !important;
+                        width: 100% !important;
+                    }
+                    .article-view-mode .full-article {
+                        width: 100% !important;
+                        max-width: 100% !important;
+                    }
+                `;
+                document.head.appendChild(styleEl);
+                
+                // Setup any new images that were added
+                setupImageErrorHandling();
+                
+                // Update document title
+                document.title = `${article.title} - StormGamer`;
+                
+                isLoading = false;
+            })
+            .catch(error => {
+                console.error('Error loading article:', error);
+                hideLoadingIndicator();
+                showErrorMessage('Failed to load the article. Please try again.');
+                isLoading = false;
+            });
     }
     
     // Array of editor names

@@ -128,6 +128,9 @@ def index():
 
 @app.route('/article/<article_id>')
 def article(article_id):
+    # Check if this is a fragment request from JavaScript
+    is_fragment = request.args.get('format') == 'fragment'
+    
     # Call the external API to get all articles
     response = requests.get(ARTICLES_ENDPOINT)
     
@@ -172,7 +175,9 @@ def article(article_id):
         if article_found:
             # For direct access, we already log the request via the before_request handler
             # Make all articles available to the template for the "Next Article" feature
-            return render_template('article.html', article=article_found, all_articles=articles, editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL)
+            return render_template('article.html', article=article_found, all_articles=articles, 
+                                  editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL,
+                                  is_fragment=is_fragment)
     
     # Article not found
     abort(404)
