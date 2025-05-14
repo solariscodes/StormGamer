@@ -281,6 +281,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Set the browser URL to match the article being viewed without page reload
         history.pushState({articleId: articleId}, '', `/article/${articleId}`);
         
+        // Send a ping to track this article view - we do this since we don't navigate to a new page
+        fetch(`/track-view/article/${articleId}`, { method: 'GET' });
+        
         // Try to find article in cached articles first
         const article = cachedArticles.find(a => a.id == articleId);
         

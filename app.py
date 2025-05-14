@@ -170,7 +170,9 @@ def article(article_id):
                 break
         
         if article_found:
-            return render_template('article.html', article=article_found, editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL)
+            # For direct access, we already log the request via the before_request handler
+            # Make all articles available to the template for the "Next Article" feature
+            return render_template('article.html', article=article_found, all_articles=articles, editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL)
     
     # Article not found
     abort(404)
@@ -287,6 +289,30 @@ def team_member(member_name):
         return render_template('team_member.html', member=member_found, editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL)
     else:
         abort(404)  # Member not found
+
+@app.route('/track-view/article/<article_id>')
+def track_article_view(article_id):
+    """Track an article view when loaded via JavaScript (doesn't render a page)"""
+    # We create a simulated request with the proper path to log it correctly
+    class SimulatedRequest:
+        def __init__(self, path, method="GET", remote_addr=None, user_agent=None, referrer=None):
+            self.path = path
+            self.method = method
+            self.args = {}
+            self.form = {}
+            self.remote_addr = remote_addr or request.remote_addr
+            self.user_agent = user_agent or request.user_agent
+            self.referrer = referrer or request.referrer
+            self.headers = request.headers
+    
+    # Create a simulated request that mimics what would happen if user navigated directly
+    simulated_req = SimulatedRequest(path=f"/article/{article_id}")
+    
+    # Log this simulated request
+    log_request(simulated_req)
+    
+    # Return an empty response with 200 status
+    return "", 200
 
 @app.route('/auth')
 def auth():

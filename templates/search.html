@@ -145,7 +145,7 @@
                 </style>
                 <div class="search-results-grid">
                     {% for article in articles %}
-                        <div class="news-card" data-article-id="{{ article.id }}" onclick="window.location.href='/article/{{ article.id }}';" style="cursor: pointer;">
+                        <div class="news-card" data-article-id="{{ article.id }}" onclick="window.loadArticleContent('{{ article.id }}'); return false;" style="cursor: pointer;">
                             <div class="news-img-container">
                                 <img src="{{ article.full_image_url if article.full_image_url else url_for('generate_placeholder', width=400, height=200, text=article.title|truncate(15, True)) }}" 
                                      alt="{{ article.title }}" class="news-img" 
