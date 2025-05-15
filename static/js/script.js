@@ -152,7 +152,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!article.full_image_url) return;
         
         card.innerHTML = `
-            <img src="${article.full_image_url}" alt="${title}" class="news-img">
+            <div class="news-img-container">
+                <img src="${article.full_image_url}" alt="${title}" class="news-img">
+                <div class="news-overlay">
+                    <span class="read-more">Read More</span>
+                </div>
+            </div>
             <div class="news-content">
                 <h3 class="news-title">${title}</h3>
                 <div class="news-meta">
@@ -173,9 +178,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         </a>
                     </div>
                 </div>
-            </div>
-            <div class="card-overlay">
-                <span><i class="fas fa-eye"></i> Read More</span>
             </div>
         `;
         

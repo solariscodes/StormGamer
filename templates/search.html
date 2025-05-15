@@ -239,6 +239,20 @@
         const apiBaseUrl = document.body.getAttribute('data-api-base-url') || "https://web-production-cfff.up.railway.app";
         const heroSection = document.querySelector('.search-results-header');
 
+        // If loadArticleContent isn't defined yet, define it here
+        if (typeof window.loadArticleContent !== 'function') {
+            window.loadArticleContent = function(articleId) {
+                isLoading = true;
+                currentArticleId = articleId;
+                
+                // Save the current scroll position
+                localStorage.setItem('scrollPosition', window.scrollY);
+                
+                // Redirect to the article page
+                window.location.href = `/article/${articleId}`;
+            };
+        }
+
         // Initialize article cards click handling
         document.querySelectorAll('.news-card').forEach(card => {
             card.addEventListener('click', function(e) {
