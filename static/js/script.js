@@ -133,6 +133,11 @@ document.addEventListener('DOMContentLoaded', function() {
             card.classList.add('clickable');
             card.setAttribute('data-article-id', article.id);
             card.addEventListener('click', function(e) {
+                // If they clicked the share icon, don't navigate
+                if (e.target.closest('.share-icon') || e.target.closest('.fa-share-alt')) {
+                    e.stopPropagation();
+                    return;
+                }
                 e.preventDefault();
                 loadArticleContent(article.id);
             });
@@ -152,13 +157,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 <h3 class="news-title">${title}</h3>
                 <div class="news-meta">
                     <span><i class="far fa-newspaper"></i> ${editorLabel}</span>
-                    <span><i class="fas fa-share-alt"></i> Share</span>
+                    <span class="share-icon" onclick="event.stopPropagation();"><i class="fas fa-share-alt"></i> Share</span>
                 </div>
             </div>
             <div class="card-overlay">
                 <span><i class="fas fa-eye"></i> Read More</span>
             </div>
         `;
+        
+        // Add share functionality
+        const shareButton = card.querySelector('.share-icon');
+        if (shareButton) {
+            shareButton.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent card click
+                // Share functionality
+                if (navigator.share) {
+                    navigator.share({
+                        title: article.title,
+                        url: `/article/${article.id}`
+                    });
+                } else {
+                    // Fallback - copy link to clipboard
+                    const url = `${window.location.origin}/article/${article.id}`;
+                    navigator.clipboard.writeText(url)
+                        .then(() => alert('Link copied to clipboard!'))
+                        .catch(() => alert('Unable to copy link'));
+                }
+            });
+        }
         
         newsContainer.appendChild(card);
     }

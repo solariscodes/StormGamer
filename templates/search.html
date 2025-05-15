@@ -157,7 +157,7 @@
                 </style>
                 <div class="search-results-grid">
                     {% for article in articles %}
-                        <div class="news-card" data-article-id="{{ article.id }}" onclick="window.loadArticleContent('{{ article.id }}'); return false;" style="cursor: pointer;">
+                        <div class="news-card clickable" data-article-id="{{ article.id }}" onclick="window.loadArticleContent('{{ article.id }}'); return false;" style="cursor: pointer;">
                             <div class="news-img-container">
                                 <img src="{{ article.full_image_url }}" 
                                      alt="{{ article.title }}" class="news-img">
@@ -168,8 +168,8 @@
                             <div class="news-content">
                                 <h3 class="news-title">{{ article.title }}</h3>
                                 <div class="news-meta">
-                                    <span class="news-date">{{ article.date if article.date else 'Editorial' }}</span>
-                                    <span class="news-author">{{ article.author if article.author else 'Editorial' }}</span>
+                                    <span class="news-date"><i class="far fa-calendar-alt"></i> {{ article.date if article.date else 'Editorial' }}</span>
+                                    <span class="share-icon" onclick="event.stopPropagation();"><i class="fas fa-share-alt"></i> Share</span>
                                 </div>
                             </div>
                         </div>
@@ -215,5 +215,29 @@
     </footer>
     
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        // Handle share buttons in search results
+        document.querySelectorAll('.share-icon').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const articleId = this.closest('.news-card').dataset.articleId;
+                if (!articleId) return;
+                
+                if (navigator.share) {
+                    // Web Share API if available
+                    navigator.share({
+                        title: this.closest('.news-card').querySelector('.news-title').textContent,
+                        url: `${window.location.origin}/article/${articleId}`
+                    });
+                } else {
+                    // Fallback - copy link to clipboard
+                    const url = `${window.location.origin}/article/${articleId}`;
+                    navigator.clipboard.writeText(url)
+                        .then(() => alert('Link copied to clipboard!'))
+                        .catch(() => alert('Unable to copy link'));
+                }
+            });
+        });
+    </script>
 </body>
 </html>
