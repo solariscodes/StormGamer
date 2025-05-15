@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://stormgamer.com/sitemap.xml 
+# The base URL of your site will be added programmatically
+Sitemap: /sitemap.xml 

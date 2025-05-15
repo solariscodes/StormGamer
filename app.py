@@ -2,6 +2,7 @@ from flask import Flask, render_template, jsonify, request, abort, redirect, Res
 import requests
 import os
 from admin import admin_bp, log_request
+from datetime import datetime
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
@@ -14,6 +15,26 @@ def before_request():
     # Skip logging for static files
     if not request.path.startswith('/static/'):
         log_request(request)
+
+# Add routes for robots.txt and sitemap.xml
+@app.route('/robots.txt')
+def robots_txt():
+    # Read the static robots.txt file
+    robots_content = open(os.path.join(app.static_folder, 'robots.txt'), 'r').read()
+    
+    # Replace the placeholder sitemap URL with the actual URL
+    sitemap_url = request.url_root.rstrip('/') + "/sitemap.xml"
+    robots_content = robots_content.replace('Sitemap: /sitemap.xml', f'Sitemap: {sitemap_url}')
+    
+    # Return the modified content
+    return Response(robots_content, mimetype='text/plain')
+
+@app.route('/sitemap.xml')
+def sitemap_xml():
+    # Generate dynamic sitemap with current date
+    now = datetime.now()
+    sitemap_template = app.jinja_env.get_template('sitemap.xml')
+    return Response(sitemap_template.render(now=now, request=request), mimetype='application/xml')
 
 API_BASE_URL = "https://web-production-cfff.up.railway.app"
 ARTICLES_ENDPOINT = f"{API_BASE_URL}/articles"
