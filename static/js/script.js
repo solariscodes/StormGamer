@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
             card.setAttribute('data-article-id', article.id);
             card.addEventListener('click', function(e) {
                 // If they clicked the share icon, don't navigate
-                if (e.target.closest('.share-icon') || e.target.closest('.fa-share-alt')) {
+                if (e.target.closest('.share-icon') || e.target.closest('.fa-share-alt') || e.target.closest('.share-menu')) {
                     e.stopPropagation();
                     return;
                 }
@@ -158,6 +158,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="news-meta">
                     <span><i class="far fa-newspaper"></i> ${editorLabel}</span>
                     <span class="share-icon" onclick="event.stopPropagation();"><i class="fas fa-share-alt"></i> Share</span>
+                    <div class="share-menu">
+                        <a href="https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.origin + '/article/' + article.id)}&text=${encodeURIComponent(title)}" class="share-menu-item" target="_blank">
+                            <i class="fab fa-twitter"></i> Twitter
+                        </a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.origin + '/article/' + article.id)}" class="share-menu-item" target="_blank">
+                            <i class="fab fa-facebook"></i> Facebook
+                        </a>
+                        <a href="https://www.reddit.com/submit?url=${encodeURIComponent(window.location.origin + '/article/' + article.id)}&title=${encodeURIComponent(title)}" class="share-menu-item" target="_blank">
+                            <i class="fab fa-reddit"></i> Reddit
+                        </a>
+                        <a href="#" class="share-menu-item copy-link">
+                            <i class="fas fa-link"></i> Copy Link
+                        </a>
+                    </div>
                 </div>
             </div>
             <div class="card-overlay">
@@ -167,24 +181,70 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Add share functionality
         const shareButton = card.querySelector('.share-icon');
+        const shareMenu = card.querySelector('.share-menu');
+        const copyLinkButton = card.querySelector('.copy-link');
+        
         if (shareButton) {
             shareButton.addEventListener('click', function(e) {
                 e.stopPropagation(); // Prevent card click
-                // Share functionality
-                if (navigator.share) {
-                    navigator.share({
-                        title: article.title,
-                        url: `/article/${article.id}`
-                    });
-                } else {
-                    // Fallback - copy link to clipboard
-                    const url = `${window.location.origin}/article/${article.id}`;
-                    navigator.clipboard.writeText(url)
-                        .then(() => alert('Link copied to clipboard!'))
-                        .catch(() => alert('Unable to copy link'));
-                }
+                
+                // Close all other share menus
+                document.querySelectorAll('.share-menu.active').forEach(menu => {
+                    if (menu !== shareMenu) {
+                        menu.classList.remove('active');
+                    }
+                });
+                
+                // Toggle this share menu
+                shareMenu.classList.toggle('active');
             });
         }
+        
+        if (copyLinkButton) {
+            copyLinkButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const url = `${window.location.origin}/article/${article.id}`;
+                navigator.clipboard.writeText(url)
+                    .then(() => {
+                        // Show a small tooltip confirmation
+                        const tooltip = document.createElement('div');
+                        tooltip.textContent = 'Link copied!';
+                        tooltip.style.position = 'absolute';
+                        tooltip.style.background = 'var(--accent-color)';
+                        tooltip.style.color = 'white';
+                        tooltip.style.padding = '4px 8px';
+                        tooltip.style.borderRadius = '4px';
+                        tooltip.style.fontSize = '12px';
+                        tooltip.style.bottom = '60px';
+                        tooltip.style.right = '10px';
+                        tooltip.style.zIndex = '100';
+                        tooltip.style.opacity = '0';
+                        tooltip.style.transition = 'opacity 0.3s ease';
+                        
+                        shareMenu.appendChild(tooltip);
+                        
+                        // Animate tooltip
+                        setTimeout(() => {
+                            tooltip.style.opacity = '1';
+                        }, 10);
+                        
+                        setTimeout(() => {
+                            tooltip.style.opacity = '0';
+                            setTimeout(() => tooltip.remove(), 300);
+                        }, 2000);
+                    })
+                    .catch(() => alert('Unable to copy link'));
+            });
+        }
+        
+        // Close share menu when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.share-icon') && !e.target.closest('.share-menu')) {
+                shareMenu.classList.remove('active');
+            }
+        });
         
         newsContainer.appendChild(card);
     }

@@ -170,6 +170,20 @@
                                 <div class="news-meta">
                                     <span class="news-date"><i class="far fa-calendar-alt"></i> {{ article.date if article.date else 'Editorial' }}</span>
                                     <span class="share-icon" onclick="event.stopPropagation();"><i class="fas fa-share-alt"></i> Share</span>
+                                    <div class="share-menu">
+                                        <a href="https://twitter.com/intent/tweet?url={{ request.url_root }}article/{{ article.id }}&text={{ article.title }}" class="share-menu-item" target="_blank">
+                                            <i class="fab fa-twitter"></i> Twitter
+                                        </a>
+                                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url_root }}article/{{ article.id }}" class="share-menu-item" target="_blank">
+                                            <i class="fab fa-facebook"></i> Facebook
+                                        </a>
+                                        <a href="https://www.reddit.com/submit?url={{ request.url_root }}article/{{ article.id }}&title={{ article.title }}" class="share-menu-item" target="_blank">
+                                            <i class="fab fa-reddit"></i> Reddit
+                                        </a>
+                                        <a href="#" class="share-menu-item copy-link" data-url="{{ request.url_root }}article/{{ article.id }}">
+                                            <i class="fas fa-link"></i> Copy Link
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -220,23 +234,68 @@
         document.querySelectorAll('.share-icon').forEach(button => {
             button.addEventListener('click', function(e) {
                 e.stopPropagation();
-                const articleId = this.closest('.news-card').dataset.articleId;
-                if (!articleId) return;
                 
-                if (navigator.share) {
-                    // Web Share API if available
-                    navigator.share({
-                        title: this.closest('.news-card').querySelector('.news-title').textContent,
-                        url: `${window.location.origin}/article/${articleId}`
-                    });
-                } else {
-                    // Fallback - copy link to clipboard
-                    const url = `${window.location.origin}/article/${articleId}`;
-                    navigator.clipboard.writeText(url)
-                        .then(() => alert('Link copied to clipboard!'))
-                        .catch(() => alert('Unable to copy link'));
-                }
+                // Close all other share menus
+                const thisShareMenu = this.nextElementSibling;
+                document.querySelectorAll('.share-menu.active').forEach(menu => {
+                    if (menu !== thisShareMenu) {
+                        menu.classList.remove('active');
+                    }
+                });
+                
+                // Toggle this share menu
+                thisShareMenu.classList.toggle('active');
             });
+        });
+        
+        // Handle copy link buttons
+        document.querySelectorAll('.copy-link').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const url = this.getAttribute('data-url');
+                navigator.clipboard.writeText(url)
+                    .then(() => {
+                        // Show a small tooltip confirmation
+                        const shareMenu = this.closest('.share-menu');
+                        const tooltip = document.createElement('div');
+                        tooltip.textContent = 'Link copied!';
+                        tooltip.style.position = 'absolute';
+                        tooltip.style.background = 'var(--accent-color)';
+                        tooltip.style.color = 'white';
+                        tooltip.style.padding = '4px 8px';
+                        tooltip.style.borderRadius = '4px';
+                        tooltip.style.fontSize = '12px';
+                        tooltip.style.bottom = '60px';
+                        tooltip.style.right = '10px';
+                        tooltip.style.zIndex = '100';
+                        tooltip.style.opacity = '0';
+                        tooltip.style.transition = 'opacity 0.3s ease';
+                        
+                        shareMenu.appendChild(tooltip);
+                        
+                        // Animate tooltip
+                        setTimeout(() => {
+                            tooltip.style.opacity = '1';
+                        }, 10);
+                        
+                        setTimeout(() => {
+                            tooltip.style.opacity = '0';
+                            setTimeout(() => tooltip.remove(), 300);
+                        }, 2000);
+                    })
+                    .catch(() => alert('Unable to copy link'));
+            });
+        });
+        
+        // Close share menus when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.share-icon') && !e.target.closest('.share-menu')) {
+                document.querySelectorAll('.share-menu.active').forEach(menu => {
+                    menu.classList.remove('active');
+                });
+            }
         });
     </script>
 </body>
