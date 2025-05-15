@@ -1,64 +1,12 @@
 from flask import Flask, render_template, jsonify, request, abort, redirect, Response
 import requests
 import os
-import hashlib
 from admin import admin_bp, log_request
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
 # Register the admin blueprint
 app.register_blueprint(admin_bp)
-
-# Custom Jinja2 filters
-@app.template_filter('hash')
-def hash_filter(value):
-    """Convert a string to a 6-character hex color code."""
-    hash_obj = hashlib.md5(str(value).encode())
-    # Return the first 6 characters of the hex digest to use as a color code
-    return hash_obj.hexdigest()[:6]
-
-# Placeholder SVG text generation route - much simpler than PIL
-@app.route('/placeholder/<width>x<height>/<text>')
-def generate_placeholder(width, height, text):
-    """Generate a placeholder SVG with the given dimensions and text."""
-    try:
-        # Convert dimensions to integers
-        width = int(width)
-        height = int(height)
-        
-        # Limit dimensions for security
-        width = min(max(width, 50), 1200)
-        height = min(max(height, 50), 800)
-        
-        # Create SVG with white text on black background
-        svg = f'''
-        <svg width="{width}" height="{height}" xmlns="http://www.w3.org/2000/svg">
-            <rect width="{width}" height="{height}" fill="black"/>
-            <text 
-                x="50%" 
-                y="50%" 
-                dominant-baseline="middle" 
-                text-anchor="middle"
-                fill="white" 
-                font-family="Arial, sans-serif" 
-                font-size="{min(width, height) // 10}px">
-                {text}
-            </text>
-        </svg>
-        '''
-        
-        return Response(svg, mimetype='image/svg+xml')
-    except Exception as e:
-        # If anything goes wrong, return a simple black SVG
-        svg = f'''
-        <svg width="{width}" height="{height}" xmlns="http://www.w3.org/2000/svg">
-            <rect width="{width}" height="{height}" fill="black"/>
-        </svg>
-        '''
-        return Response(svg, mimetype='image/svg+xml')
-
-# ADMIN key must be set as an environment variable
-# No default key for security reasons
 
 # Log all requests
 @app.before_request

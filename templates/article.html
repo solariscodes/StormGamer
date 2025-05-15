@@ -9,6 +9,18 @@
     <link rel="icon" href="{{ url_for('static', filename='favicon/favicon.svg') }}" type="image/svg+xml">
     <link rel="alternate icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}" type="image/x-icon">
     <meta name="theme-color" content="#ff005c">
+    <!-- Open Graph Meta Tags for social sharing -->
+    <meta property="og:title" content="{{ article.title if article.title else 'Article' }} - StormGamer">
+    <meta property="og:description" content="{{ article.content[:150] + '...' if article.content and article.content|length > 150 else article.content if article.content else 'Read this article on StormGamer, your ultimate gaming news source.' }}">
+    <meta property="og:image" content="{{ article.full_image_url }}">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="StormGamer">
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ article.title if article.title else 'Article' }} - StormGamer">
+    <meta name="twitter:description" content="{{ article.content[:150] + '...' if article.content and article.content|length > 150 else article.content if article.content else 'Read this article on StormGamer, your ultimate gaming news source.' }}">
+    <meta name="twitter:image" content="{{ article.full_image_url }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/article.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -143,20 +155,10 @@
                         <a href="https://www.reddit.com/submit?url={{ request.url }}&title={{ article.title }}" target="_blank" class="share-icon" title="Share on Reddit"><i class="fab fa-reddit-alien"></i></a>
                     </div>
                     
-                    <div class="tags">
-                        <span>Tags:</span>
-                        <a href="#" class="tag">Gaming</a>
-                        <a href="#" class="tag">News</a>
-                        {% if article.category %}
-                            <a href="#" class="tag">{{ article.category }}</a>
-                        {% endif %}
+                    <div class="article-navigation">
+                        <a href="/" class="simple-link"><i class="fas fa-arrow-left"></i> Back to News</a>
+                        <a href="javascript:void(0)" onclick="loadNextArticle()" class="simple-link">Next Article <i class="fas fa-arrow-right"></i></a>
                     </div>
-                </div>
-                
-                <!-- Simple text links for navigation -->
-                <div class="back-to-news">
-                    <span class="back-link"><a href="/" class="simple-link"><i class="fas fa-arrow-left"></i> Back to News</a></span>
-                    <span class="next-link"><a href="javascript:void(0)" onclick="loadNextArticle()" class="simple-link">Next Article <i class="fas fa-arrow-right"></i></a></span>
                 </div>
             </article>
             

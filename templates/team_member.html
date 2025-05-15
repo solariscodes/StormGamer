@@ -8,6 +8,21 @@
     <link rel="icon" href="{{ url_for('static', filename='favicon/favicon.svg') }}" type="image/svg+xml">
     <link rel="alternate icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}" type="image/x-icon">
     <meta name="theme-color" content="#ff005c">
+    <!-- Open Graph Meta Tags for social sharing -->
+    {% set member_image = url_for('static', filename='images/team/' + member.name.split()[0].lower() + '.avif', _external=True) %}
+    {% set fallback_image = url_for('static', filename='images/team/' + member.name.split()[0].lower() + '.jpg', _external=True) %}
+    {% set logo_image = url_for('static', filename='images/bolt.PNG', _external=True) %}
+    <meta property="og:title" content="{{ member.name }} - {{ member.role }} at StormGamer">
+    <meta property="og:description" content="{{ member.bio }} {{ member.name }} is part of StormGamer's editorial team, your ultimate gaming news source.">
+    <meta property="og:image" content="{{ member_image }}">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:type" content="profile">
+    <meta property="og:site_name" content="StormGamer">
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ member.name }} - {{ member.role }} at StormGamer">
+    <meta name="twitter:description" content="{{ member.bio }} {{ member.name }} is part of StormGamer's editorial team, your ultimate gaming news source.">
+    <meta name="twitter:image" content="{{ member_image }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -226,10 +241,10 @@
                 <div class="member-sidebar">
                     <div class="member-image">
                         <!-- Use local profile images from static/images/team directory -->
-                        {% set fallback_image = url_for('static', filename='images/team/' + member.name.split()[0].lower() + '.jpg') %}
+                        {% set fallback_image_local = url_for('static', filename='images/team/' + member.name.split()[0].lower() + '.jpg') %}
                         <img src="{{ url_for('static', filename='images/team/' + member.name.split()[0].lower() + '.avif') }}" 
                              alt="{{ member.name }}"
-                             onerror="this.onerror=null; this.src='{{ fallback_image }}';"
+                             onerror="this.onerror=null; this.src='{{ fallback_image_local }}';"
                              style="object-fit: cover;">
                     </div>
                     <div class="member-info">
@@ -309,7 +324,6 @@
                             <a href="/search?q={{ game_name|urlencode }}" class="game-link" title="Search for {{ game_name }}">
                                 <img src="{{ game_images[game_id] }}" 
                                      alt="{{ game_name }}"
-                                     onerror="this.onerror=null; this.src='{{ url_for('generate_placeholder', width=80, height=80, text=game_name|truncate(8, True)) }}';"
                                      style="object-fit: cover; width: 80px; height: 80px;">
                                 <span>{{ game_name }}</span>
                             </a>

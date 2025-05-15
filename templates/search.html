@@ -3,11 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Results for "{{ query }}" - StormGamer</title>
+    <title>Search: {{ query }} - StormGamer</title>
     <!-- Simple SVG favicon that will work reliably -->
     <link rel="icon" href="{{ url_for('static', filename='favicon/favicon.svg') }}" type="image/svg+xml">
     <link rel="alternate icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}" type="image/x-icon">
     <meta name="theme-color" content="#ff005c">
+    <!-- Open Graph Meta Tags for social sharing -->
+    <meta property="og:title" content="Search: {{ query }} - StormGamer">
+    <meta property="og:description" content="Search results for '{{ query }}' on StormGamer, your ultimate gaming news source.">
+    <meta property="og:image" content="{{ request.url_root.rstrip('/') + url_for('static', filename='images/bolt.PNG') }}">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="StormGamer">
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Search: {{ query }} - StormGamer">
+    <meta name="twitter:description" content="Search results for '{{ query }}' on StormGamer, your ultimate gaming news source.">
+    <meta name="twitter:image" content="{{ request.url_root.rstrip('/') + url_for('static', filename='images/bolt.PNG') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -147,9 +159,8 @@
                     {% for article in articles %}
                         <div class="news-card" data-article-id="{{ article.id }}" onclick="window.loadArticleContent('{{ article.id }}'); return false;" style="cursor: pointer;">
                             <div class="news-img-container">
-                                <img src="{{ article.full_image_url if article.full_image_url else url_for('generate_placeholder', width=400, height=200, text=article.title|truncate(15, True)) }}" 
-                                     alt="{{ article.title }}" class="news-img" 
-                                     onerror="this.onerror=null; this.src='{{ url_for('generate_placeholder', width=400, height=200, text=article.title|truncate(15, True)) }}'">
+                                <img src="{{ article.full_image_url }}" 
+                                     alt="{{ article.title }}" class="news-img">
                                 <div class="news-overlay">
                                     <span class="read-more">Read More</span>
                                 </div>

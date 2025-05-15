@@ -78,7 +78,9 @@
     text-decoration: none;
     font-size: 1rem;
     transition: color 0.3s ease;
-    background: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .simple-link:hover {
@@ -167,15 +169,21 @@
     padding-top: 1.5rem;
     margin-top: 2rem;
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 1.5rem;
 }
 
-.share-buttons, .tags {
+.share-buttons {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-bottom: 1rem;
+}
+
+.article-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
 }
 
 .share-icon {
@@ -200,11 +208,11 @@
 }
 
 .share-icon i.fa-facebook-f:hover, .share-icon:hover i.fa-facebook-f {
-    color: #4267B2;
+    color: #1877F2;
 }
 
 .share-icon i.fa-reddit-alien:hover, .share-icon:hover i.fa-reddit-alien {
-    color: #FF5700;
+    color: #FF4500;
 }
 
 .tag {

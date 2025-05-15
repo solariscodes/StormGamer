@@ -8,6 +8,18 @@
     <link rel="icon" href="{{ url_for('static', filename='favicon/favicon.svg') }}" type="image/svg+xml">
     <link rel="alternate icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}" type="image/x-icon">
     <meta name="theme-color" content="#ff005c">
+    <!-- Open Graph Meta Tags for social sharing -->
+    <meta property="og:title" content="Meet Our Editorial Team - StormGamer">
+    <meta property="og:description" content="Meet the passionate gamers behind StormGamer who bring you the latest news, reviews, and insights from the gaming world.">
+    <meta property="og:image" content="{{ request.url_root.rstrip('/') + url_for('static', filename='images/bolt.PNG') }}">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="StormGamer">
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Meet Our Editorial Team - StormGamer">
+    <meta name="twitter:description" content="Meet the passionate gamers behind StormGamer who bring you the latest news, reviews, and insights from the gaming world.">
+    <meta name="twitter:image" content="{{ request.url_root.rstrip('/') + url_for('static', filename='images/bolt.PNG') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">

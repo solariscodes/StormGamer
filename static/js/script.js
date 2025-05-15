@@ -8,46 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const savedTheme = localStorage.getItem('theme') || 'dark';
     setTheme(savedTheme);
     
-    // Global image error handling
-    setupImageErrorHandling();
-    
-    // Function to set up global image error handling
-    function setupImageErrorHandling() {
-        // Find all images on the page
-        const images = document.querySelectorAll('img');
-        
-        // Add error handlers to each image
-        images.forEach(img => {
-            if (!img.hasAttribute('onerror')) {
-                img.onerror = function() {
-                    const altText = this.alt || 'StormGamer';
-                    const truncatedText = altText.length > 15 ? altText.substring(0, 15) + '...' : altText;
-                    
-                    // Use our local placeholder generator
-                    this.src = `/placeholder/400x200/${encodeURIComponent(truncatedText)}`;
-                    
-                    // Prevent infinite error loop
-                    this.onerror = null;
-                };
-            }
-        });
-    }
-    
-    // Generate a color hash from a string
-    function generateColorHash(str) {
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) {
-            hash = str.charCodeAt(i) + ((hash << 5) - hash);
-        }
-        
-        let color = '';
-        for (let i = 0; i < 3; i++) {
-            const value = (hash >> (i * 8)) & 0xFF;
-            color += ('00' + value.toString(16)).slice(-2);
-        }
-        return color;
-    }
-    
     // Toggle theme when button is clicked
     themeToggle.addEventListener('click', function(e) {
         e.preventDefault();
@@ -477,41 +437,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Array of editor names
-    const editorNames = [
-        "Lucas Silva",
-        "Gabriel Oliveira",
-        "Matheus Santos",
-        "Rafael Costa",
-        "Bruno Almeida",
-        "Felipe Souza",
-        "Thiago Pereira",
-        "Leonardo Ferreira"
-    ];
-    
-    // Helper function to get a random editor name
-    function getRandomEditor() {
-        const randomIndex = Math.floor(Math.random() * editorNames.length);
-        return editorNames[randomIndex];
-    }
-    
-    // Helper function to format the date or return a random editor
-    function formatDate(dateString) {
-        if (!dateString) return getRandomEditor();
+    // Function to set up global image error handling
+    function setupImageErrorHandling() {
+        // Find all images on the page
+        const images = document.querySelectorAll('img');
         
-        try {
-            const date = new Date(dateString);
-            if (isNaN(date.getTime())) {
-                return getRandomEditor();
+        // Add error handlers to each image
+        images.forEach(img => {
+            if (!img.hasAttribute('onerror')) {
+                img.onerror = function() {
+                    // If image fails to load, just hide it
+                    this.style.display = 'none';
+                };
             }
-            return date.toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-        } catch (e) {
-            return getRandomEditor();
-        }
+        });
     }
     
     // Load the next article in the sequence
