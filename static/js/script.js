@@ -315,7 +315,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Function to load an article without full page reload
-    function loadArticleContent(articleId) {
+    window.loadArticleContent = function(articleId) {
         isLoading = true;
         
         // Save the current article ID

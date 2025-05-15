@@ -157,7 +157,7 @@
                 </style>
                 <div class="search-results-grid">
                     {% for article in articles %}
-                        <div class="news-card clickable" data-article-id="{{ article.id }}" onclick="window.loadArticleContent('{{ article.id }}'); return false;" style="cursor: pointer;">
+                        <div class="news-card clickable" data-article-id="{{ article.id }}" style="cursor: pointer;">
                             <div class="news-img-container">
                                 <img src="{{ article.full_image_url }}" 
                                      alt="{{ article.title }}" class="news-img">
@@ -230,6 +230,32 @@
     
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     <script>
+        // Initialize required variables for article loading functionality
+        const newsContainer = document.querySelector('.search-results-grid');
+        let isLoading = false;
+        let isSingleArticleView = false;
+        let currentArticleId = null;
+        let cachedArticles = [];
+        const apiBaseUrl = document.body.getAttribute('data-api-base-url') || "https://web-production-cfff.up.railway.app";
+        const heroSection = document.querySelector('.search-results-header');
+
+        // Initialize article cards click handling
+        document.querySelectorAll('.news-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                // If they clicked the share icon, don't navigate
+                if (e.target.closest('.share-icon') || e.target.closest('.fa-share-alt') || e.target.closest('.share-menu')) {
+                    e.stopPropagation();
+                    return;
+                }
+                
+                e.preventDefault();
+                const articleId = this.getAttribute('data-article-id');
+                if (articleId) {
+                    window.loadArticleContent(articleId);
+                }
+            });
+        });
+        
         // Handle share buttons in search results
         document.querySelectorAll('.share-icon').forEach(button => {
             button.addEventListener('click', function(e) {
