@@ -158,7 +158,7 @@
                     <div class="ad-placeholder">
                         <i class="fas fa-ad"></i>
                         <p>Your Advertisement Could Be Here</p>
-                        <a href="#" class="ad-cta-button">Contact Us</a>
+                        <a href="{{ url_for('advertise') }}" class="ad-cta-button">Contact Us</a>
                     </div>
                 </div>
                 
@@ -200,6 +200,11 @@
                 <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
                 <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
                 <a href="#" class="social-icon"><i class="fab fa-discord"></i></a>
+            </div>
+            <div class="footer-links">
+                <a href="{{ url_for('terms') }}" class="footer-link">Terms</a>
+                <a href="{{ url_for('privacy') }}" class="footer-link">Privacy</a>
+                <a href="{{ url_for('advertise') }}" class="footer-link">Advertise</a>
             </div>
             <p>&copy; 2025 StormGamer. All rights reserved.</p>
         </div>

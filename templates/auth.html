@@ -400,7 +400,7 @@
                             
                             <div class="remember-me">
                                 <input type="checkbox" id="agree-terms" name="agree-terms" required>
-                                <label for="agree-terms">I agree to the <a href="#" style="color: var(--accent-color)">Terms</a> and <a href="#" style="color: var(--accent-color)">Privacy Policy</a></label>
+                                <label for="agree-terms">I agree to the <a href="{{ url_for('terms') }}" style="color: var(--accent-color)">Terms of Service</a> and <a href="{{ url_for('privacy') }}" style="color: var(--accent-color)">Privacy Policy</a></label>
                             </div>
                             
                             <button type="submit" class="auth-btn">Create Account</button>

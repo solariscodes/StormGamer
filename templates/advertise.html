@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advertise with Us - StormGamer</title>
+    <meta name="description" content="Promote your brand, game or product on StormGamer. Reach our highly engaged gaming audience with effective advertising solutions.">
+    <link rel="canonical" href="{{ request.url }}">
+    <!-- Simple SVG favicon that will work reliably -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon/favicon.svg') }}" type="image/svg+xml">
+    <link rel="alternate icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}" type="image/x-icon">
+    <meta name="theme-color" content="#ff005c">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        .hero {
+            position: relative;
+            overflow: hidden;
+            height: 350px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: linear-gradient(135deg, #1a1a2e 0%, #3e236e 50%, #ff005c 100%);
+        }
+        
+        .hero h2 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 0, 92, 0.7);
+            letter-spacing: 1px;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('data:image/svg+xml;utf8,<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><rect width="1" height="1" fill="rgba(255,255,255,0.05)"/></svg>');
+            background-repeat: repeat;
+            opacity: 0.5;
+            z-index: 1;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            padding: 0 20px;
+        }
+        
+        .ad-options-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 1rem;
+        }
+        
+        .section-heading {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        
+        .section-heading h2 {
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+        }
+        
+        .section-heading p {
+            max-width: 700px;
+            margin: 0 auto;
+            color: var(--gray-text);
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+        
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+        
+        .stat-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem;
+            min-width: 200px;
+            flex: 1;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(0);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .stat-label {
+            color: var(--light-text);
+            font-size: 1.1rem;
+        }
+        
+        .ad-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .ad-option {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .ad-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .ad-option-header {
+            background: linear-gradient(135deg, #3e236e 0%, #ff005c 100%);
+            padding: 1.5rem;
+            color: white;
+        }
+        
+        .ad-option-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .ad-option-price {
+            font-size: 2rem;
+            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .ad-option-price span {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        
+        .ad-option-features {
+            padding: 1.5rem;
+            flex-grow: 1;
+        }
+        
+        .ad-option-features ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .ad-option-features li {
+            padding: 0.7rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+        }
+        
+        .ad-option-features li:last-child {
+            border-bottom: none;
+        }
+        
+        .ad-option-features li i {
+            color: var(--accent-color);
+            margin-right: 0.5rem;
+        }
+        
+        .ad-option-footer {
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .ad-cta-button {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .ad-cta-button:hover {
+            background-color: #ff337d;
+            transform: scale(1.05);
+        }
+        
+        .testimonials {
+            background-color: var(--darker-bg);
+            padding: 3rem 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .testimonial-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .testimonial {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .testimonial-quote {
+            font-style: italic;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            color: var(--text-color);
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        
+        .testimonial-quote::before {
+            content: '"';
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-size: 2.5rem;
+            line-height: 1;
+            color: var(--accent-color);
+            opacity: 0.5;
+        }
+        
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+        }
+        
+        .testimonial-author-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 1rem;
+        }
+        
+        .testimonial-author-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .testimonial-author-info h4 {
+            margin: 0;
+            color: var(--light-text);
+        }
+        
+        .testimonial-author-info p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--gray-text);
+        }
+        
+        .contact-form-container {
+            max-width: 800px;
+            margin: 3rem auto;
+            padding: 2rem;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--light-text);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(255, 0, 92, 0.1);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        
+        textarea.form-control {
+            resize: vertical;
+            min-height: 150px;
+        }
+        
+        .form-submit {
+            text-align: center;
+        }
+        
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto 3rem auto;
+        }
+        
+        .faq-item {
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            background-color: var(--card-bg);
+        }
+        
+        .faq-question {
+            padding: 1rem 1.5rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--light-text);
+        }
+        
+        .faq-question:hover {
+            background-color: rgba(255, 0, 92, 0.1);
+        }
+        
+        .faq-answer {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+        
+        .faq-answer-content {
+            padding: 0 1.5rem;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .faq-item.active .faq-answer {
+            padding: 1rem 0;
+            max-height: 1000px;
+        }
+        
+        .faq-item i {
+            transition: transform 0.3s ease;
+        }
+        
+        .faq-item.active i {
+            transform: rotate(180deg);
+        }
+        
+        @media (max-width: 768px) {
+            .hero h2 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .section-heading h2 {
+                font-size: 2rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body data-api-base-url="{{ api_base_url }}">
+    <header>
+        <div class="logo-container">
+            <a href="/" class="logo-link">
+                <div class="logo">
+                    <i class="fas fa-bolt"></i>
+                    <h1>StormGamer</h1>
+                </div>
+            </a>
+            <p class="tagline">Your Ultimate Gaming News Source</p>
+            <div class="search-container">
+                <form action="/search" method="get" id="search-form">
+                    <input type="text" name="q" id="search-input" placeholder="Search for gaming news..." required>
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="/"><i class="fas fa-newspaper"></i> News</a></li>
+                <li><a href="{{ url_for('team') }}"><i class="fas fa-users"></i> Our Team</a></li>
+                <li><a href="{{ url_for('auth') }}"><i class="fas fa-user"></i> Sign In / Register</a></li>
+                <li><a href="#" id="theme-toggle"><i class="fas fa-moon"></i> <span id="theme-text">Light Mode</span></a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <div class="hero">
+            <div class="hero-content">
+                <h2>Advertise With StormGamer</h2>
+                <p>Connect with our engaged gaming community and level up your brand's visibility</p>
+            </div>
+        </div>
+        
+        <div class="ad-options-container">
+            <div class="section-heading">
+                <h2>Why Advertise With Us?</h2>
+                <p>StormGamer offers direct access to a highly engaged, gaming-focused audience that's passionate about the latest games, technology, and industry trends.</p>
+            </div>
+            
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-number">250K+</div>
+                    <div class="stat-label">Monthly Unique Visitors</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">4.5M</div>
+                    <div class="stat-label">Monthly Page Views</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">73%</div>
+                    <div class="stat-label">18-34 Age Demographic</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">8:30</div>
+                    <div class="stat-label">Avg. Session Time (minutes)</div>
+                </div>
+            </div>
+            
+            <div class="section-heading">
+                <h2>Advertising Options</h2>
+                <p>Choose from our range of advertising packages designed to maximize your brand's exposure to our gaming audience.</p>
+            </div>
+            
+            <div class="ad-options">
+                <div class="ad-option">
+                    <div class="ad-option-header">
+                        <h3 class="ad-option-title">Standard Banner</h3>
+                        <div class="ad-option-price">$1,500 <span>/month</span></div>
+                    </div>
+                    <div class="ad-option-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> High-visibility banner placement</li>
+                            <li><i class="fas fa-check"></i> 300,000+ impressions monthly</li>
+                            <li><i class="fas fa-check"></i> Desktop and mobile exposure</li>
+                            <li><i class="fas fa-check"></i> Monthly performance report</li>
+                            <li><i class="fas fa-check"></i> Ad creative change once per month</li>
+                        </ul>
+                    </div>
+                    <div class="ad-option-footer">
+                        <a href="#contact-form" class="ad-cta-button">Get Started</a>
+                    </div>
+                </div>
+                
+                <div class="ad-option">
+                    <div class="ad-option-header">
+                        <h3 class="ad-option-title">Featured Spotlight</h3>
+                        <div class="ad-option-price">$3,200 <span>/month</span></div>
+                    </div>
+                    <div class="ad-option-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Premium homepage placement</li>
+                            <li><i class="fas fa-check"></i> 500,000+ impressions monthly</li>
+                            <li><i class="fas fa-check"></i> 1 sponsored article per month</li>
+                            <li><i class="fas fa-check"></i> Social media amplification</li>
+                            <li><i class="fas fa-check"></i> Detailed analytics reporting</li>
+                            <li><i class="fas fa-check"></i> Ad creative change twice per month</li>
+                        </ul>
+                    </div>
+                    <div class="ad-option-footer">
+                        <a href="#contact-form" class="ad-cta-button">Get Started</a>
+                    </div>
+                </div>
+                
+                <div class="ad-option">
+                    <div class="ad-option-header">
+                        <h3 class="ad-option-title">Premium Partnership</h3>
+                        <div class="ad-option-price">$5,500 <span>/month</span></div>
+                    </div>
+                    <div class="ad-option-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Full site takeover for 3 days</li>
+                            <li><i class="fas fa-check"></i> 1M+ impressions monthly</li>
+                            <li><i class="fas fa-check"></i> 2 sponsored articles per month</li>
+                            <li><i class="fas fa-check"></i> Newsletter inclusion</li>
+                            <li><i class="fas fa-check"></i> Social media campaign</li>
+                            <li><i class="fas fa-check"></i> Custom audience targeting</li>
+                            <li><i class="fas fa-check"></i> Weekly performance reports</li>
+                        </ul>
+                    </div>
+                    <div class="ad-option-footer">
+                        <a href="#contact-form" class="ad-cta-button">Get Started</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section-heading">
+                <h2>Custom Solutions</h2>
+                <p>Looking for something specific? We offer tailored advertising solutions including game launch campaigns, event sponsorships, and branded content series.</p>
+            </div>
+            
+            <div class="testimonials">
+                <div class="testimonial-container">
+                    <div class="section-heading" style="margin-bottom: 2rem;">
+                        <h2>What Our Advertisers Say</h2>
+                    </div>
+                    
+                    <div class="testimonial-grid">
+                        <div class="testimonial">
+                            <p class="testimonial-quote">StormGamer delivered exceptional ROI for our indie game launch. Their engaged audience was the perfect target for our title, resulting in 30% more wishlists than our projections.</p>
+                            <div class="testimonial-author">
+                                <div class="testimonial-author-img">
+                                    <img src="https://i.pravatar.cc/150?img=33" alt="Sarah Chen">
+                                </div>
+                                <div class="testimonial-author-info">
+                                    <h4>Sarah Chen</h4>
+                                    <p>Marketing Director, Pixel Dreams Studios</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="testimonial">
+                            <p class="testimonial-quote">The Premium Partnership package was perfect for our AAA launch. StormGamer's audience is exactly who we wanted to reach, and the sponsored content performed far beyond expectations.</p>
+                            <div class="testimonial-author">
+                                <div class="testimonial-author-img">
+                                    <img src="https://i.pravatar.cc/150?img=11" alt="Marcus Johnson">
+                                </div>
+                                <div class="testimonial-author-info">
+                                    <h4>Marcus Johnson</h4>
+                                    <p>VP of Marketing, Quantum Entertainment</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="testimonial">
+                            <p class="testimonial-quote">As a gaming peripheral brand, finding the right audience is crucial. StormGamer's readers are truly invested in quality gaming experiences, making them perfect customers for our products.</p>
+                            <div class="testimonial-author">
+                                <div class="testimonial-author-img">
+                                    <img src="https://i.pravatar.cc/150?img=44" alt="Jessica Torres">
+                                </div>
+                                <div class="testimonial-author-info">
+                                    <h4>Jessica Torres</h4>
+                                    <p>CMO, NeoTech Gaming</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section-heading" style="margin-top: 3rem;">
+                <h2>Frequently Asked Questions</h2>
+            </div>
+            
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What are your audience demographics? <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Our audience is primarily 18-34 years old (73%), with a 65% male and 35% female split. They are tech-savvy, early adopters, and primarily from the US (60%), UK (12%), Canada (8%), Australia (5%), and other regions (15%).</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What ad formats do you support? <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>We support standard IAB units including leaderboards (728×90), medium rectangles (300×250), mobile banners (320×50), as well as custom formats like skin takeovers, interstitials, and native advertising opportunities.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Do you offer sponsored content? <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Yes! Our team of experienced gaming writers can create sponsored articles, reviews, and features that align with your marketing goals while resonating with our audience. All sponsored content is clearly marked as such for transparency.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How do you track campaign performance? <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>We provide comprehensive analytics including impressions, clicks, CTR, engagement metrics, and demographic data. For premium packages, we offer more detailed reporting including heat maps, scroll depth, and time-on-page metrics.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What is your content approval process? <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>All advertising content must be submitted at least 3 business days before the campaign start date. Our team will review materials for compliance with our guidelines. We may suggest changes to improve performance or ensure compliance with our standards.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section-heading">
+                <h2 id="contact-form">Ready to Power Up Your Brand?</h2>
+                <p>Fill out the form below and our advertising team will contact you within 24 hours.</p>
+            </div>
+            
+            <div class="contact-form-container">
+                <form id="advertise-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" name="name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="company">Company</label>
+                            <input type="text" id="company" name="company" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" name="phone" class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="package">Package of Interest</label>
+                        <select id="package" name="package" class="form-control">
+                            <option value="">Select a package</option>
+                            <option value="standard">Standard Banner</option>
+                            <option value="featured">Featured Spotlight</option>
+                            <option value="premium">Premium Partnership</option>
+                            <option value="custom">Custom Solution</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="budget">Estimated Budget</label>
+                        <select id="budget" name="budget" class="form-control">
+                            <option value="">Select budget range</option>
+                            <option value="1000-3000">$1,000 - $3,000</option>
+                            <option value="3000-5000">$3,000 - $5,000</option>
+                            <option value="5000-10000">$5,000 - $10,000</option>
+                            <option value="10000+">$10,000+</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Tell us about your campaign goals</label>
+                        <textarea id="message" name="message" class="form-control" rows="5" required></textarea>
+                    </div>
+                    
+                    <div class="form-submit">
+                        <button type="submit" class="ad-cta-button">Send Inquiry</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <i class="fas fa-bolt"></i>
+                <h2>StormGamer</h2>
+            </div>
+            <div class="social-links">
+                <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-discord"></i></a>
+            </div>
+            <div class="footer-links">
+                <a href="{{ url_for('terms') }}" class="footer-link">Terms</a>
+                <a href="{{ url_for('privacy') }}" class="footer-link">Privacy</a>
+                <a href="{{ url_for('advertise') }}" class="footer-link">Advertise</a>
+            </div>
+            <p>&copy; 2025 StormGamer. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        // FAQ accordion functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const faqItems = document.querySelectorAll('.faq-item');
+            
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question');
+                
+                question.addEventListener('click', () => {
+                    // Toggle active class on the clicked item
+                    item.classList.toggle('active');
+                    
+                    // Close other items
+                    faqItems.forEach(otherItem => {
+                        if (otherItem !== item) {
+                            otherItem.classList.remove('active');
+                        }
+                    });
+                });
+            });
+            
+            // Form submission
+            const advertiseForm = document.getElementById('advertise-form');
+            
+            advertiseForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // In a real implementation, this would send the form data
+                
+                // Show success message
+                advertiseForm.innerHTML = `
+                    <div style="text-align: center; padding: 2rem;">
+                        <i class="fas fa-check-circle" style="font-size: 3rem; color: var(--accent-color); margin-bottom: 1rem;"></i>
+                        <h3>Thanks for your interest!</h3>
+                        <p>Our advertising team will contact you within 24 hours to discuss your campaign.</p>
+                    </div>
+                `;
+            });
+        });
+    </script>
+</body>
+</html> 

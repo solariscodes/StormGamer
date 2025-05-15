@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - StormGamer</title>
+    <meta name="description" content="StormGamer's Privacy Policy. Learn how we collect, use, and protect your data on our gaming news website.">
+    <meta name="robots" content="noindex, follow">
+    <link rel="canonical" href="{{ request.url }}">
+    <!-- Simple SVG favicon that will work reliably -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon/favicon.svg') }}" type="image/svg+xml">
+    <link rel="alternate icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}" type="image/x-icon">
+    <meta name="theme-color" content="#ff005c">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        .content-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 3rem;
+        }
+        
+        .legal-heading {
+            color: var(--accent-color);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent-color);
+        }
+        
+        .legal-heading:first-of-type {
+            margin-top: 0;
+        }
+        
+        .legal-text {
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+        }
+        
+        .legal-list {
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            padding-left: 2rem;
+        }
+        
+        .legal-list li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .last-updated {
+            font-style: italic;
+            color: var(--gray-text);
+            margin-bottom: 2rem;
+            text-align: right;
+        }
+        
+        .gaming-term {
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+        
+        .highlight-box {
+            background-color: rgba(255, 0, 92, 0.1);
+            border-left: 4px solid var(--accent-color);
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+        
+        .data-table th, 
+        .data-table td {
+            padding: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .data-table th {
+            background-color: rgba(255, 0, 92, 0.1);
+            text-align: left;
+            color: var(--accent-color);
+        }
+        
+        .data-table tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        @media (max-width: 768px) {
+            .content-container {
+                padding: 1.5rem;
+                margin-left: 1rem;
+                margin-right: 1rem;
+            }
+            
+            .data-table, .data-table tbody, .data-table tr, .data-table th, .data-table td {
+                display: block;
+            }
+            
+            .data-table tr {
+                margin-bottom: 1rem;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .data-table td {
+                border: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                position: relative;
+                padding-left: 50%;
+            }
+            
+            .data-table td:before {
+                position: absolute;
+                left: 0.75rem;
+                width: 45%;
+                padding-right: 0.75rem;
+                white-space: nowrap;
+                content: attr(data-label);
+                font-weight: bold;
+                color: var(--secondary-color);
+            }
+            
+            .data-table td:last-child {
+                border-bottom: none;
+            }
+        }
+    </style>
+</head>
+<body data-api-base-url="{{ api_base_url }}">
+    <header>
+        <div class="logo-container">
+            <a href="/" class="logo-link">
+                <div class="logo">
+                    <i class="fas fa-bolt"></i>
+                    <h1>StormGamer</h1>
+                </div>
+            </a>
+            <p class="tagline">Your Ultimate Gaming News Source</p>
+            <div class="search-container">
+                <form action="/search" method="get" id="search-form">
+                    <input type="text" name="q" id="search-input" placeholder="Search for gaming news..." required>
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="/"><i class="fas fa-newspaper"></i> News</a></li>
+                <li><a href="{{ url_for('team') }}"><i class="fas fa-users"></i> Our Team</a></li>
+                <li><a href="{{ url_for('auth') }}"><i class="fas fa-user"></i> Sign In / Register</a></li>
+                <li><a href="#" id="theme-toggle"><i class="fas fa-moon"></i> <span id="theme-text">Light Mode</span></a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <div class="hero">
+            <h2>Privacy Policy</h2>
+        </div>
+        
+        <div class="content-container">
+            <p class="last-updated">Last Updated: August 10, 2023</p>
+            
+            <h2 class="legal-heading">Your Privacy Shield Is Active</h2>
+            <p class="legal-text">
+                At StormGamer, we respect your privacy like a <span class="gaming-term">rare achievement</span> that needs protection. This Privacy Policy explains how we collect, use, and safeguard your personal information when you visit our website. Consider this our <span class="gaming-term">strategy guide</span> for how we handle your data.
+            </p>
+            
+            <div class="highlight-box">
+                <p><strong>THE QUICK SAVE:</strong> We collect some information when you use StormGamer, like your IP address and browser details. If you create an account, we'll ask for your email. We use cookies to improve your experience. We don't sell your personal data to third parties, and we use reasonable security measures to protect your information.</p>
+            </div>
+            
+            <h2 class="legal-heading">Information We Collect</h2>
+            <p class="legal-text">
+                Like collecting <span class="gaming-term">power-ups</span> in a game, we gather certain information to power our services:
+            </p>
+            <table class="data-table">
+                <tr>
+                    <th>Information Type</th>
+                    <th>Description</th>
+                    <th>Why We Collect It</th>
+                </tr>
+                <tr>
+                    <td data-label="Information Type">Account Information</td>
+                    <td data-label="Description">Email address, username, and optional profile details</td>
+                    <td data-label="Why We Collect It">To create and manage your account, authenticate your identity, and communicate with you</td>
+                </tr>
+                <tr>
+                    <td data-label="Information Type">Usage Data</td>
+                    <td data-label="Description">IP address, browser type, device information, pages visited, time spent on site</td>
+                    <td data-label="Why We Collect It">To improve our website, analyze trends, and optimize user experience</td>
+                </tr>
+                <tr>
+                    <td data-label="Information Type">Cookies & Similar Technologies</td>
+                    <td data-label="Description">Small data files stored on your device</td>
+                    <td data-label="Why We Collect It">To remember your preferences, maintain sessions, and provide personalized content</td>
+                </tr>
+                <tr>
+                    <td data-label="Information Type">User Content</td>
+                    <td data-label="Description">Comments, forum posts, and other contributions</td>
+                    <td data-label="Why We Collect It">To display your content on our site and allow community participation</td>
+                </tr>
+            </table>
+            
+            <h2 class="legal-heading">How We Use Your Information</h2>
+            <p class="legal-text">
+                We use your information to <span class="gaming-term">level up</span> your experience on StormGamer:
+            </p>
+            <ul class="legal-list">
+                <li>Provide and improve our services</li>
+                <li>Personalize your experience (like a character customization screen)</li>
+                <li>Process account registrations and authenticate users</li>
+                <li>Send important notifications and updates</li>
+                <li>Respond to your inquiries and provide customer support</li>
+                <li>Analyze website usage to improve our features and content</li>
+                <li>Detect and prevent fraud or security breaches</li>
+            </ul>
+            
+            <h2 class="legal-heading">Cookies & Similar Technologies</h2>
+            <p class="legal-text">
+                StormGamer uses cookies like a game uses <span class="gaming-term">save points</span> - they help remember where you were and what you were doing. You can control cookies through your browser settings, but disabling them might affect your experience on our site.
+            </p>
+            <p class="legal-text">
+                We use three main types of cookies:
+            </p>
+            <ul class="legal-list">
+                <li><strong>Essential Cookies:</strong> Required for basic website functionality (like the game engine that powers everything)</li>
+                <li><strong>Preference Cookies:</strong> Remember your settings and preferences (like your custom control settings)</li>
+                <li><strong>Analytics Cookies:</strong> Help us understand how visitors interact with our site (like tracking which levels are most popular)</li>
+            </ul>
+            
+            <h2 class="legal-heading">Sharing Your Information</h2>
+            <p class="legal-text">
+                We don't sell your personal information to third parties. We're not the <span class="gaming-term">villain</span> in this story. However, we may share information in the following circumstances:
+            </p>
+            <ul class="legal-list">
+                <li>With service providers who help us operate our website</li>
+                <li>To comply with legal obligations</li>
+                <li>To protect our rights, privacy, safety, or property</li>
+                <li>In connection with a business transfer or acquisition</li>
+            </ul>
+            
+            <h2 class="legal-heading">Your Rights & Choices</h2>
+            <p class="legal-text">
+                You have certain rights over your data, like a player has control over their character:
+            </p>
+            <ul class="legal-list">
+                <li>Access and update your personal information through your account settings</li>
+                <li>Opt-out of marketing communications</li>
+                <li>Request deletion of your account and personal data</li>
+                <li>Control cookies through your browser settings</li>
+            </ul>
+            <p class="legal-text">
+                To exercise these rights, please contact us at privacy@stormgamer.com.
+            </p>
+            
+            <h2 class="legal-heading">Data Security</h2>
+            <p class="legal-text">
+                We implement reasonable security measures to protect your information, like a <span class="gaming-term">fortress shield</span> around your data. However, no method of transmission over the internet is 100% secure. We cannot guarantee absolute security, but we're committed to protecting your personal information.
+            </p>
+            
+            <h2 class="legal-heading">Children's Privacy</h2>
+            <p class="legal-text">
+                StormGamer is not intended for children under 13 (that's our <span class="gaming-term">age rating</span>). We do not knowingly collect personal information from children under 13. If we discover we have collected information from a child under 13, we will delete that information promptly.
+            </p>
+            
+            <h2 class="legal-heading">Changes to This Privacy Policy</h2>
+            <p class="legal-text">
+                We may update this Privacy Policy periodically. We'll post any changes on this page with a new "Last Updated" date. Significant changes may also be notified via email or site announcement. Think of it as an <span class="gaming-term">update patch</span> - we'll let you know about important changes.
+            </p>
+            
+            <h2 class="legal-heading">Contact Us</h2>
+            <p class="legal-text">
+                If you have questions about this Privacy Policy, please contact us at privacy@stormgamer.com. Our <span class="gaming-term">support team</span> is ready to address your concerns about privacy.
+            </p>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <i class="fas fa-bolt"></i>
+                <h2>StormGamer</h2>
+            </div>
+            <div class="social-links">
+                <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-discord"></i></a>
+            </div>
+            <div class="footer-links">
+                <a href="{{ url_for('terms') }}" class="footer-link">Terms</a>
+                <a href="{{ url_for('privacy') }}" class="footer-link">Privacy</a>
+                <a href="{{ url_for('advertise') }}" class="footer-link">Advertise</a>
+            </div>
+            <p>&copy; 2025 StormGamer. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html> 

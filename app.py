@@ -303,6 +303,21 @@ def auth():
     """Page for sign in and sign up"""
     return render_template('auth.html', editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL)
 
+@app.route('/terms')
+def terms():
+    """Terms of Service page"""
+    return render_template('terms.html', editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL)
+
+@app.route('/privacy')
+def privacy():
+    """Privacy Policy page"""
+    return render_template('privacy.html', editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL)
+
+@app.route('/advertise')
+def advertise():
+    """Advertise with Us page"""
+    return render_template('advertise.html', editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL)
+
 if __name__ == '__main__':
     import os
     port = int(os.environ.get('PORT', 5000))
