@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="news-content">
                 <h3 class="news-title">${title}</h3>
                 <div class="news-meta">
-                    <span><i class="far fa-newspaper"></i> ${editorLabel}</span>
+                    <span class="news-date"><i class="far fa-newspaper"></i> ${editorLabel}</span>
                     <span class="share-icon" onclick="event.stopPropagation();"><i class="fas fa-share-alt"></i> Share</span>
                     <div class="share-menu">
                         <a href="https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.origin + '/article/' + article.id)}&text=${encodeURIComponent(title)}" class="share-menu-item" target="_blank">

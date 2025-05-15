@@ -363,6 +363,7 @@ main {
 .news-meta {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin-top: auto;
     color: var(--gray-text);
     font-size: 0.9rem;
@@ -372,6 +373,9 @@ main {
 
 .news-meta span {
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .news-meta .share-icon {
@@ -461,6 +465,7 @@ main {
 .news-meta {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin-top: auto;
     color: var(--gray-text);
     font-size: 0.9rem;
