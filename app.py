@@ -29,6 +29,12 @@ def robots_txt():
     # Return the modified content
     return Response(robots_content, mimetype='text/plain')
 
+@app.route('/ads.txt')
+def ads_txt():
+    # Serve the ads.txt file from the static folder
+    ads_content = open(os.path.join(app.static_folder, 'ads.txt'), 'r').read()
+    return Response(ads_content, mimetype='text/plain')
+
 @app.route('/sitemap.xml')
 def sitemap_xml():
     # Generate dynamic sitemap with current date
