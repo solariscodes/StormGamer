@@ -230,5 +230,26 @@
     </footer>
     
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
+    <!-- Cookie Consent Banner -->
+    <div id="cookie-consent-banner">
+        <div class="cookie-consent-container">
+            <p class="cookie-consent-text">
+                We use cookies to enhance your experience. By continuing to visit this site, you agree to our use of cookies.
+                <a href="{{ url_for('privacy') }}" target="_blank">Learn more</a>
+            </p>
+            <div class="cookie-consent-buttons">
+                <button id="cookie-consent-decline" class="cookie-consent-button cookie-consent-decline">Decline</button>
+                <button id="cookie-consent-settings" class="cookie-consent-button cookie-consent-settings">Settings</button>
+                <button id="cookie-consent-accept" class="cookie-consent-button cookie-consent-accept">Accept</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Cookie Consent CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cookie-consent.css') }}">
+    
+    <!-- Cookie Consent JS -->
+    <script src="{{ url_for('static', filename='js/cookie-consent.js') }}"></script>
 </body>
 </html>
