@@ -600,6 +600,143 @@ footer p {
     justify-content: center;
 }
 
+/* ExitLag Banner Styles */
+.exitlag-banner {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.exitlag-banner h3 {
+    margin-bottom: 1rem;
+    color: var(--accent-color);
+    font-family: 'Orbitron', sans-serif;
+}
+
+.exitlag-banner-img {
+    max-width: 100%;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.exitlag-banner-img:hover {
+    transform: scale(1.02);
+}
+
+/* Amazon Gaming Banner Styles */
+.amazon-gaming-banner {
+    background: linear-gradient(135deg, #232f3e 0%, #37475a 100%);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    margin-bottom: 2rem;
+    text-align: center;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.amazon-gaming-banner h3 {
+    margin: 0 0 0.5rem 0;
+    color: #ff9900; /* Amazon orange color */
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.4rem;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.amazon-gaming-banner .banner-subtitle {
+    color: #e0e0e0;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.amazon-gaming-banner .banner-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #ff9900;
+    color: #000 !important;
+    padding: 0.6rem 1.2rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-family: 'Roboto', sans-serif;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.amazon-gaming-banner .banner-button:hover {
+    background: #ffac31;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.amazon-gaming-banner .banner-button i {
+    margin-left: 6px;
+    font-size: 0.8rem;
+    transition: transform 0.3s ease;
+}
+
+.amazon-gaming-banner .banner-button:hover i {
+    transform: translateX(3px);
+}
+
+.amazon-gaming-banner-img {
+    max-width: 100%;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.amazon-gaming-banner-img {
+    transition: transform 0.3s ease;
+}
+
+.amazon-gaming-banner-img:hover {
+    transform: scale(1.02);
+}
+
+.banner-image-link {
+    display: inline-block;
+    text-decoration: none;
+    border: none;
+    outline: none;
+}
+
+.banner-image-link:focus {
+    outline: 2px solid #ff9900;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Add a subtle overlay to make text more readable */
+.amazon-gaming-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 150px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
+    z-index: 1;
+}
+
+/* Position content above the overlay */
+.amazon-gaming-banner > * {
+    position: relative;
+    z-index: 2;
+}
+
 .ad-placeholder i {
     font-size: 2.5rem;
     color: var(--secondary-color);
