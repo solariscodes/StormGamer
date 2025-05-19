@@ -1,10 +1,14 @@
 from flask import Flask, render_template, jsonify, request, abort, redirect, Response
+from flask_cors import CORS
 import requests
 import os
 from admin import admin_bp, log_request
 from datetime import datetime
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
+
+# Enable CORS for all routes
+CORS(app)
 
 # Register the admin blueprint
 app.register_blueprint(admin_bp)
