@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set up event listeners for the buttons
     const acceptBtn = document.getElementById('cookie-consent-accept');
     const declineBtn = document.getElementById('cookie-consent-decline');
-    const settingsBtn = document.getElementById('cookie-consent-settings');
     
     if (acceptBtn) {
         acceptBtn.addEventListener('click', function() {
@@ -24,13 +23,6 @@ document.addEventListener('DOMContentLoaded', function() {
             hideCookieConsent();
             // Here you can disable any non-essential cookies that were already set
             console.log('Cookies declined');
-        });
-    }
-    
-    if (settingsBtn) {
-        settingsBtn.addEventListener('click', function() {
-            // Here you could show a more detailed settings modal
-            alert('Cookie settings would be shown here. For now, you can accept or decline all.');
         });
     }
 });

@@ -59,31 +59,26 @@
 }
 
 .cookie-consent-accept {
-    background-color: #4dabf7;
+    background-color: var(--accent-color, #ff005c);
     color: white;
+    border: none;
 }
 
 .cookie-consent-accept:hover {
-    background-color: #339af0;
+    background-color: #e00050;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .cookie-consent-decline {
-    background-color: #495057;
-    color: white;
+    background: transparent;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
 }
 
 .cookie-consent-decline:hover {
-    background-color: #343a40;
-}
-
-.cookie-consent-settings {
-    background: none;
-    border: 1px solid #adb5bd;
-    color: #e9ecef;
-}
-
-.cookie-consent-settings:hover {
-    background-color: #495057;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-color);
 }
 
 /* Responsive adjustments */
