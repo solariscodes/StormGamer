@@ -2,6 +2,7 @@
 
 StormGamer is a modern gaming news portal that provides the latest updates, reviews, and information about the gaming world.
 
+Check it alive -> https://stormgamer.com
 ## Features
 
 - Main page with infinite scroll news feed
