@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Reviews - StormGamer</title>
+    <!-- Simple SVG favicon that will work reliably -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon/favicon.svg') }}" type="image/svg+xml">
+    <link rel="alternate icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}" type="image/x-icon">
+    <meta name="theme-color" content="#ff005c">
+    <!-- Open Graph Meta Tags for social sharing -->
+    <meta property="og:title" content="Game Reviews - StormGamer">
+    <meta property="og:description" content="In-depth game reviews from the StormGamer editorial team. Honest, detailed analysis of the latest game releases.">
+    <meta property="og:image" content="{{ request.url_root.rstrip('/') + url_for('static', filename='images/bolt.PNG') }}">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="StormGamer">
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Game Reviews - StormGamer">
+    <meta name="twitter:description" content="In-depth game reviews from the StormGamer editorial team. Honest, detailed analysis of the latest game releases.">
+    <meta name="twitter:image" content="{{ request.url_root.rstrip('/') + url_for('static', filename='images/bolt.PNG') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Review page specific styles */
+        .reviews-header {
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .reviews-header h1 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent-color);
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .reviews-header p {
+            color: var(--gray-text);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+        
+        .review-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .review-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .review-image {
+            height: 180px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .review-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .review-card:hover .review-image img {
+            transform: scale(1.05);
+        }
+        
+        .review-score {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: var(--accent-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .review-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .review-content h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--light-text);
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .review-meta {
+            margin-bottom: 1rem;
+            color: var(--gray-text);
+            font-size: 0.9rem;
+        }
+        
+        .review-author-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .review-author-photo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent-color);
+        }
+        
+        .review-meta-details {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .review-meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .review-date {
+            color: var(--gray-text);
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .review-author {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .review-meta i {
+            color: var(--accent-color);
+        }
+        
+        .review-excerpt {
+            color: var(--gray-text);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+        
+        .review-platforms {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .platform-icon {
+            font-size: 1.2rem;
+            margin-right: 0.25rem;
+        }
+        
+        .platform-pc { color: #007bff; }
+        .platform-playstation { color: #003791; }
+        .platform-xbox { color: #107c10; }
+        .platform-switch { color: #e60012; }
+        
+        .read-more {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+            text-align: center;
+        }
+        
+        .read-more:hover {
+            background-color: var(--accent-hover);
+        }
+        
+        /* Author link styling */
+        .author-link {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        
+        .author-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Review footer */
+        .review-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+        }
+        
+        /* Share buttons */
+        .share-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .share-button {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+        
+        .share-button:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+        
+        .share-button.twitter {
+            background-color: #1DA1F2;
+        }
+        
+        .share-button.facebook {
+            background-color: #4267B2;
+        }
+        
+        .loading-spinner {
+            text-align: center;
+            padding: 3rem 0;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--accent-color);
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Footer styles */
+        footer {
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+            padding: 3rem 0 0;
+            margin-top: 3rem;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+        
+        .footer-logo {
+            flex: 1 1 300px;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-logo .fa-bolt {
+            font-size: 2rem;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+        
+        .footer-logo h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--light-text);
+            margin: 0 0 0.5rem 0;
+            font-size: 1.8rem;
+        }
+        
+        .footer-logo p {
+            color: var(--gray-text);
+            margin: 0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3rem;
+            flex: 2 1 600px;
+            justify-content: space-between;
+        }
+        
+        .footer-section {
+            flex: 1;
+            min-width: 150px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .footer-section h3 {
+            color: var(--light-text);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            margin-bottom: 1.2rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+        
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 40px;
+            height: 2px;
+            background-color: var(--accent-color);
+        }
+        
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .footer-section ul li {
+            margin-bottom: 0.6rem;
+        }
+        
+        .footer-section ul li a {
+            color: var(--gray-text);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .footer-section ul li a:hover {
+            color: var(--accent-color);
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .social-links a {
+            color: var(--light-text);
+            background-color: rgba(255, 255, 255, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+        
+        .social-links a:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-3px);
+        }
+        
+        .footer-bottom {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 1.2rem 0;
+            margin-top: 3rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--gray-text);
+        }
+        
+        .footer-bottom p {
+            margin: 0;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .reviews-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .reviews-header h1 {
+                font-size: 2rem;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            
+            .footer-section {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body data-api-base-url="{{ api_base_url }}">
+    <header>
+        <div class="logo-container">
+            <a href="/" class="logo-link">
+                <div class="logo">
+                    <i class="fas fa-bolt"></i>
+                    <h1>StormGamer</h1>
+                </div>
+            </a>
+            <p class="tagline">Your Ultimate Gaming News Source</p>
+            <div class="search-container">
+                <form action="/search" method="get" id="search-form">
+                    <input type="text" name="q" id="search-input" placeholder="Search for gaming news..." required>
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="/"><i class="fas fa-newspaper"></i> News</a></li>
+                <li class="active"><a href="/reviews"><i class="fas fa-star"></i> Reviews</a></li>
+                <li><a href="/team"><i class="fas fa-users"></i> Our Team</a></li>
+                <li><a href="{{ url_for('auth') }}"><i class="fas fa-user"></i> Sign In / Register</a></li>
+                <li><a href="#" id="theme-toggle"><i class="fas fa-moon"></i> <span id="theme-text">Light Mode</span></a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <div class="container" style="padding: 2rem 0;">
+            <div class="reviews-header">
+                <h1><i class="fas fa-star"></i> Game Reviews</h1>
+                <p>In-depth reviews of the latest game releases from our expert editorial team</p>
+            </div>
+            
+            <div class="reviews-grid" id="reviews-container">
+                <!-- Reviews will be loaded here -->
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p>Loading reviews...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <a href="/" style="text-decoration: none; color: inherit;">
+                    <i class="fas fa-bolt"></i>
+                    <h2>StormGamer</h2>
+                </a>
+                <p>Your Ultimate Gaming News Source</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-section">
+                    <h3>Navigation</h3>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="{{ url_for('reviews') }}">Reviews</a></li>
+                        <li><a href="{{ url_for('team') }}">Our Team</a></li>
+                        <li><a href="{{ url_for('auth') }}">Sign In / Register</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Legal</h3>
+                    <ul>
+                        <li><a href="{{ url_for('privacy') }}">Privacy Policy</a></li>
+                        <li><a href="{{ url_for('terms') }}">Terms of Service</a></li>
+                        <li><a href="{{ url_for('advertise') }}">Advertise With Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Connect</h3>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="#" aria-label="Discord"><i class="fab fa-discord"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 StormGamer. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const reviewsContainer = document.getElementById('reviews-container');
+            
+            // Function to format date
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+            
+            // Function to create a review card
+            function createReviewCard(review) {
+                // Format platforms as icons
+                const platformIcons = {
+                    'PC': '<i class="fab fa-windows platform-pc" title="PC"></i>',
+                    'Windows': '<i class="fab fa-windows platform-pc" title="PC"></i>',
+                    'PlayStation': '<i class="fab fa-playstation platform-playstation" title="PlayStation"></i>',
+                    'PlayStation 5': '<i class="fab fa-playstation platform-playstation" title="PlayStation 5"></i>',
+                    'Xbox': '<i class="fab fa-xbox platform-xbox" title="Xbox"></i>',
+                    'Xbox Series X/S': '<i class="fab fa-xbox platform-xbox" title="Xbox Series X/S"></i>',
+                    'Switch': '<i class="fas fa-gamepad platform-switch" title="Nintendo Switch"></i>',
+                    'Nintendo Switch': '<i class="fas fa-gamepad platform-switch" title="Nintendo Switch"></i>',
+                    'Mobile': '<i class="fas fa-mobile-alt" title="Mobile"></i>'
+                };
+                
+                // Format platforms
+                let platforms = '';
+                if (review.platforms && review.platforms.length > 0) {
+                    platforms = review.platforms.map(platform => {
+                        return platformIcons[platform] || `<span class="platform-tag">${platform}</span>`;
+                    }).join(' ');
+                }
+                
+                // Format date
+                const formattedDate = formatDate(review.date);
+                
+                // Create share URLs
+                const shareTitle = encodeURIComponent(`Check out this review of ${review.title} on StormGamer`);
+                const shareUrl = encodeURIComponent(window.location.origin + '/review_detail?id=' + review.id);
+                const twitterShareUrl = `https://twitter.com/intent/tweet?text=${shareTitle}&url=${shareUrl}`;
+                const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`;
+                
+                // Create author URL (converting to kebab case)
+                const authorUrl = `/team/${review.author.toLowerCase().replace(/\s+/g, '-')}`;
+                
+                return `
+                    <div class="review-card">
+                        <div class="review-image">
+                            <a href="/review_detail?id=${review.id}">
+                                <img src="${review.image || 'https://via.placeholder.com/400x225'}" 
+                                     alt="${review.title}" 
+                                     onerror="this.onerror=null; this.src='https://via.placeholder.com/400x225';">
+                            </a>
+                            <div class="review-score">${review.score}</div>
+                        </div>
+                        <div class="review-content">
+                            <h3>${review.title}</h3>
+                            <div class="review-meta">
+                                <div class="review-meta-row">
+                                    <span class="review-date"><i class="far fa-calendar-alt"></i> ${formattedDate}</span>
+                                    <span class="review-author"><i class="far fa-user"></i> By <a href="${authorUrl}" class="author-link">${review.author}</a></span>
+                                </div>
+                            </div>
+                            <div class="review-platforms">
+                                ${platforms}
+                            </div>
+                            <p class="review-excerpt">${review.excerpt}</p>
+                            <div class="review-footer">
+                                <a href="/review_detail?id=${review.id}" class="read-more">Read Full Review</a>
+                                <div class="share-buttons">
+                                    <a href="${twitterShareUrl}" target="_blank" class="share-button twitter" title="Share on Twitter">
+                                        <i class="fab fa-twitter"></i>
+                                    </a>
+                                    <a href="${facebookShareUrl}" target="_blank" class="share-button facebook" title="Share on Facebook">
+                                        <i class="fab fa-facebook-f"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Fetch reviews from JSON file
+            fetch('/static/data/reviews.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Clear loading spinner
+                    reviewsContainer.innerHTML = '';
+                    
+                    // Sort reviews by date (newest first)
+                    const sortedReviews = data.reviews.sort((a, b) => {
+                        return new Date(b.date) - new Date(a.date);
+                    });
+                    
+                    // Add review cards
+                    sortedReviews.forEach(review => {
+                        const reviewHTML = createReviewCard(review);
+                        reviewsContainer.innerHTML += reviewHTML;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching reviews:', error);
+                    reviewsContainer.innerHTML = `
+                        <div class="error-message" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
+                            <p>Failed to load reviews. Please try again later.</p>
+                            <button onclick="window.location.reload()" class="read-more" style="margin-top: 1rem;">
+                                <i class="fas fa-sync-alt"></i> Retry
+                            </button>
+                        </div>
+                    `;
+                });
+        });
+    </script>
+</body>
+</html>

@@ -262,18 +262,27 @@ def search():
     
     return render_template('search.html', query=query, articles=search_results, editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL)
 
+@app.route('/reviews')
+def reviews():
+    return render_template('reviews.html', editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL)
+
+@app.route('/review_detail')
+def review_detail():
+    review_id = request.args.get('id')
+    return render_template('review_detail.html', review_id=review_id, editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL)
+
+@app.route('/review/<review_id>')
+def review(review_id):
+    return render_template('review_detail.html', editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL, review_id=review_id)
+
 @app.route('/team')
 def team():
-    """Page for the editorial team"""
     return render_template('team.html', editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL)
 
 @app.route('/team/<member_name>')
 def team_member(member_name):
-    """Page for a specific team member"""
-    # Find the team member with the matching name
     member_found = None
     for member in EDITORIAL_TEAM:
-        # Convert name to URL-friendly format for comparison
         url_name = member['name'].lower().replace(' ', '-')
         if url_name == member_name:
             member_found = member
@@ -286,8 +295,6 @@ def team_member(member_name):
 
 @app.route('/track-view/article/<article_id>')
 def track_article_view(article_id):
-    """Track an article view when loaded via JavaScript (doesn't render a page)"""
-    # We create a simulated request with the proper path to log it correctly
     class SimulatedRequest:
         def __init__(self, path, method="GET", remote_addr=None, user_agent=None, referrer=None):
             self.path = path
@@ -299,33 +306,26 @@ def track_article_view(article_id):
             self.referrer = referrer or request.referrer
             self.headers = request.headers
     
-    # Create a simulated request that mimics what would happen if user navigated directly
     simulated_req = SimulatedRequest(path=f"/article/{article_id}")
     
-    # Log this simulated request
     log_request(simulated_req)
     
-    # Return an empty response with 200 status
     return "", 200
 
 @app.route('/auth')
 def auth():
-    """Page for sign in and sign up"""
     return render_template('auth.html', editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL)
 
 @app.route('/terms')
 def terms():
-    """Terms of Service page"""
     return render_template('terms.html', editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL)
 
 @app.route('/privacy')
 def privacy():
-    """Privacy Policy page"""
     return render_template('privacy.html', editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL)
 
 @app.route('/advertise')
 def advertise():
-    """Advertise with Us page"""
     return render_template('advertise.html', editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL)
 
 if __name__ == '__main__':
