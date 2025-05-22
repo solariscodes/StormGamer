@@ -107,6 +107,9 @@ def index():
 
 @app.route('/article/<article_id>')
 def article(article_id):
+    # Directly block the problematic IGN video article
+    if article_id == '991e59f2d12f034bf5b74fb9e8826362':
+        abort(404)
     # Check if this is a fragment request from JavaScript
     is_fragment = request.args.get('format') == 'fragment'
     
@@ -156,13 +159,22 @@ def article(article_id):
                 break
         
         if article_found:
+            # Check if this is an IGN video article with no title that we want to filter
+            if not article_found.get('title') and article_found.get('content', '').strip().startswith('\n\nThis is a video article from IGN.'):
+                # Return a 404 for these articles
+                abort(404)
+                
             # For direct access, we already log the request via the before_request handler
             # Make all articles available to the template for the "Next Article" feature
             # Filter articles to only include those with images
             articles_with_images = [a for a in articles if 'full_image_url' in a or ('local_image_path' in a and a['local_image_path'])]
+            
+            # Also filter out IGN video articles with no title from the related articles
+            articles_with_images = [a for a in articles_with_images if not (not a.get('title') and a.get('content', '').strip().startswith('\n\nThis is a video article from IGN.'))]
+            
             return render_template('article.html', article=article_found, all_articles=articles_with_images, 
-                                  editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL,
-                                  is_fragment=is_fragment)
+                                   editorial_team=EDITORIAL_TEAM, api_base_url=API_BASE_URL,
+                                   is_fragment=is_fragment)
     
     # Article not found
     abort(404)

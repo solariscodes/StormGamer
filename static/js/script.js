@@ -84,6 +84,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Filter out articles without images
                 articles = articles.filter(article => article.full_image_url || (article.local_image_path && article.local_image_path.trim() !== ''));
                 
+                // Filter out IGN video articles with no title
+                articles = articles.filter(article => {
+                    // Log article info for debugging
+                    console.log('Checking article:', article.id, 'Title:', article.title);
+                    
+                    // Check for IGN video articles by various patterns
+                    if (!article.title || article.title === '') {
+                        // If content exists and matches IGN video pattern
+                        if (article.content) {
+                            const contentText = article.content.trim();
+                            // Check different patterns of IGN video articles
+                            if (contentText.startsWith('\n\nThis is a video article from IGN.') ||
+                                contentText.includes('This is a video article from IGN.') ||
+                                contentText.includes('IGN video article')) {
+                                console.log('Filtered out IGN video article:', article.id);
+                                return false;
+                            }
+                        }
+                        
+                        // Filter articles with completely empty titles as a fallback
+                        if (article.title === '') {
+                            console.log('Filtered out empty title article:', article.id);
+                            return false;
+                        }
+                    }
+                    return true;
+                });
+                
                 // Apply pagination manually
                 const start = (currentPage - 1) * perPage;
                 const end = start + perPage;
@@ -318,6 +346,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Function to load an article without full page reload
     window.loadArticleContent = function(articleId) {
+        // Specifically block problematic IGN video article
+        if (articleId === '991e59f2d12f034bf5b74fb9e8826362') {
+            console.log('Blocked access to known IGN video article:', articleId);
+            showErrorMessage('This article is not available.');
+            return;
+        }
+        
         isLoading = true;
         
         // Save the current article ID
@@ -354,12 +389,37 @@ document.addEventListener('DOMContentLoaded', function() {
                 article.full_image_url = `${apiBaseUrl}/${article.local_image_path}`;
             }
             
-            // Skip articles without images
+            // Skip articles without images or IGN video articles
             if (!article.full_image_url) {
                 hideLoadingIndicator();
                 showErrorMessage('This article is not available.');
                 isLoading = false;
                 return;
+            }
+            
+            // Skip IGN video articles with no title
+            if (!article.title || article.title === '') {
+                if (article.content) {
+                    const contentText = article.content.trim();
+                    if (contentText.startsWith('\n\nThis is a video article from IGN.') ||
+                        contentText.includes('This is a video article from IGN.') ||
+                        contentText.includes('IGN video article')) {
+                        console.log('Blocked direct access to IGN video article:', article.id);
+                        hideLoadingIndicator();
+                        showErrorMessage('This article is not available.');
+                        isLoading = false;
+                        return;
+                    }
+                }
+                
+                // Also block completely empty title articles
+                if (article.title === '') {
+                    console.log('Blocked direct access to empty title article:', article.id);
+                    hideLoadingIndicator();
+                    showErrorMessage('This article is not available.');
+                    isLoading = false;
+                    return;
+                }
             }
             
             // Format the content with paragraphs if it exists
