@@ -300,81 +300,100 @@
                             'masseffect2': url_for('static', filename='images/games/masseffect2.PNG'),
                             'overwatch': url_for('static', filename='images/games/overwatch.jpg'),
                             'hades': url_for('static', filename='images/games/hades.jpg'),
-                            'civ6': url_for('static', filename='images/games/civ6.jpg')
+                            'civ6': url_for('static', filename='images/games/civ6.jpg'),
+                            'dragonage': url_for('static', filename='images/games/dragonage.jpg'),
+                            'baldursgate3': url_for('static', filename='images/games/baldursgate3.jpg'),
+                            'diablo4': url_for('static', filename='images/games/diablo4.jpg'),
+                            'valorant': url_for('static', filename='images/games/valorant.jpg'),
+                            'destiny2': url_for('static', filename='images/games/destiny2.jpg'),
+                            'csgo': url_for('static', filename='images/games/csgo.jpg'),
+                            'dota2': url_for('static', filename='images/games/dota2.jpg'),
+                            'teamfight': url_for('static', filename='images/games/teamfight.jpg'),
+                            'factorio': url_for('static', filename='images/games/factorio.jpg'),
+                            'rimworld': url_for('static', filename='images/games/rimworld.jpg'),
+                            'frostpunk': url_for('static', filename='images/games/frostpunk.jpg'),
+                            'hollowknight': url_for('static', filename='images/games/hollowknight.jpg'),
+                            'celeste': url_for('static', filename='images/games/celeste.jpg'),
+                            'undertale': url_for('static', filename='images/games/undertale.jpg'),
+                            'ff14': url_for('static', filename='images/games/ff14.jpg'),
+                            'ff6': url_for('static', filename='images/games/ff6.jpg'),
+                            'zelda-oot': url_for('static', filename='images/games/zelda-oot.jpg'),
+                            'zelda-mm': url_for('static', filename='images/games/zelda-mm.jpg'),
+                            'pokemon': url_for('static', filename='images/games/pokemon.jpg')
                         } %}
                         
                         {# Define favorite games by role #}
                         {% if member.role == 'Chief Editor' %}
                             {# RPG specialist #}
                             {% set games = [
-                                ('The Witcher 3: Wild Hunt', 'witcher3'),
-                                ('Skyrim', 'skyrim'),
+                                ('Dragon Age: Inquisition', 'dragonage'),
+                                ('Baldurs Gate 3', 'baldursgate3'),
                                 ('Final Fantasy VII', 'ff7'),
                                 ('Elden Ring', 'eldenring')
                             ] %}
                         {% elif member.role == 'Content Editor' %}
                             {# Streamer and eSports commentator #}
                             {% set games = [
-                                ('Overwatch', 'overwatch'),
-                                ('Hades', 'hades'),
-                                ('The Legend of Zelda: Breath of the Wild', 'zelda-botw'),
-                                ('Elden Ring', 'eldenring')
+                                ('Valorant', 'valorant'),
+                                ('Teamfight Tactics', 'teamfight'),
+                                ('Destiny 2', 'destiny2'),
+                                ('CS:GO', 'csgo')
                             ] %}
                         {% elif member.role == 'Writer' and member.name == 'Bruno Rodrigues' %}
                             {# Strategy and simulation games expert #}
                             {% set games = [
                                 ('Civilization VI', 'civ6'),
-                                ('Mass Effect 2', 'masseffect2'),
-                                ('Skyrim', 'skyrim'),
-                                ('Elden Ring', 'eldenring')
+                                ('Factorio', 'factorio'),
+                                ('RimWorld', 'rimworld'),
+                                ('Frostpunk', 'frostpunk')
                             ] %}
                         {% elif member.role == 'Writer' and member.name == 'Fernanda Costa' %}
                             {# FPS and competitive games enthusiast #}
                             {% set games = [
                                 ('Overwatch', 'overwatch'),
-                                ('Hades', 'hades'),
-                                ('Mass Effect 2', 'masseffect2'),
-                                ('The Witcher 3: Wild Hunt', 'witcher3')
+                                ('Valorant', 'valorant'),
+                                ('Destiny 2', 'destiny2'),
+                                ('Dota 2', 'dota2')
                             ] %}
                         {% elif member.role == 'Writer' and member.name == 'Thiago Almeida' %}
                             {# Console and indie games specialist #}
                             {% set games = [
-                                ('Stardew Valley', 'stardewvalley'),
-                                ('Hades', 'hades'),
-                                ('The Legend of Zelda: Breath of the Wild', 'zelda-botw'),
-                                ('Animal Crossing', 'animalcrossing')
+                                ('Hollow Knight', 'hollowknight'),
+                                ('Celeste', 'celeste'),
+                                ('Undertale', 'undertale'),
+                                ('Stardew Valley', 'stardewvalley')
                             ] %}
                         {% elif member.role == 'Social Media' %}
                             {# Content creator and lifelong gamer #}
                             {% set games = [
                                 ('Animal Crossing', 'animalcrossing'),
-                                ('The Legend of Zelda: Breath of the Wild', 'zelda-botw'),
-                                ('Stardew Valley', 'stardewvalley'),
-                                ('The Witcher 3: Wild Hunt', 'witcher3')
+                                ('Hades', 'hades'),
+                                ('Diablo IV', 'diablo4'),
+                                ('Mass Effect 2', 'masseffect2')
                             ] %}
                         {% elif member.role == 'Video Editor' %}
                             {# YouTuber and retro games expert #}
                             {% set games = [
                                 ('Chrono Trigger', 'chronotrigger'),
                                 ('Super Mario World', 'mario'),
-                                ('The Legend of Zelda', 'zelda'),
-                                ('Final Fantasy VII', 'ff7')
+                                ('The Legend of Zelda: Ocarina of Time', 'zelda-oot'),
+                                ('The Legend of Zelda: Majoras Mask', 'zelda-mm')
                             ] %}
                         {% elif member.role == 'Proofreader' %}
                             {# Translator and JRPG fan #}
                             {% set games = [
                                 ('Persona 5', 'persona5'),
                                 ('NieR: Automata', 'nier'),
-                                ('Final Fantasy VII', 'ff7'),
-                                ('Chrono Trigger', 'chronotrigger')
+                                ('Final Fantasy XIV', 'ff14'),
+                                ('Final Fantasy VI', 'ff6')
                             ] %}
                         {% else %}
                             {# Default games as fallback #}
                             {% set games = [
+                                ('Pokémon', 'pokemon'),
                                 ('The Witcher 3: Wild Hunt', 'witcher3'),
-                                ('The Legend of Zelda: Breath of the Wild', 'zelda-botw'),
-                                ('Elden Ring', 'eldenring'),
-                                ('Skyrim', 'skyrim')
+                                ('Skyrim', 'skyrim'),
+                                ('The Legend of Zelda: Breath of the Wild', 'zelda-botw')
                             ] %}
                         {% endif %}
                         
