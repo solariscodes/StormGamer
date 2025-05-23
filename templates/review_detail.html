@@ -698,6 +698,67 @@
                     document.getElementById('twitter-title').content = `${review.title} - StormGamer`;
                     document.getElementById('twitter-description').content = review.excerpt;
                     document.getElementById('twitter-image').content = review.image;
+
+                    // Prepare content with image2 and YouTube video
+                    let processedPageContent;
+                    { // Scope block for temporary variables
+                        let baseHTML = review.content || review.excerpt || ''; // Ensure baseHTML is a string
+                        const image2Path = review.image2;
+                        const image2Embed = image2Path ? `<div class="review-image-container"><img src="${image2Path}" alt="${review.title} - Gameplay" class="review-content-image lightbox-image" onclick="openLightbox(this.src, this.alt)" onerror="this.style.display='none';" style="cursor: pointer;"></div>` : '';
+                        
+                        // Insert image2 after the first paragraph
+                        if (image2Embed) {
+                            const firstParagraphEndIndex = baseHTML.indexOf('</p>');
+                            if (firstParagraphEndIndex !== -1) {
+                                baseHTML = baseHTML.substring(0, firstParagraphEndIndex + 4) + image2Embed + baseHTML.substring(firstParagraphEndIndex + 4);
+                            } else {
+                                baseHTML += image2Embed; // Fallback if no paragraphs
+                            }
+                        }
+
+                        // Insert YouTube video after the second paragraph (or first if only one, or end if none)
+                        if (review.youtube) {
+                            const videoEmbedHTML = `
+                                <div class="article-video-container" style="margin-top: 2rem; margin-bottom: 2rem;">
+                                    <h3 class="video-title" style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--text-color); font-family: 'Orbitron', sans-serif;">Featured Video</h3>
+                                    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000; border-radius: 8px;">
+                                        <iframe
+                                            src="${review.youtube.replace('watch?v=', 'embed/')}"
+                                            title="${review.title} - Featured Video"
+                                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                            allowfullscreen>
+                                        </iframe>
+                                    </div>
+                                </div>`;
+
+                            const paragraphEndings = [];
+                            let searchStartIndex = 0;
+                            while (searchStartIndex < baseHTML.length) {
+                                const index = baseHTML.indexOf('</p>', searchStartIndex);
+                                if (index === -1) break;
+                                paragraphEndings.push(index);
+                                searchStartIndex = index + 4; // Move past ' </p>'
+                            }
+
+                            if (paragraphEndings.length > 0) {
+                                let insertAfterParagraphIndex;
+                                // Try to insert after 3rd, then 2nd, then 1st paragraph
+                                if (paragraphEndings.length >= 3) {
+                                    insertAfterParagraphIndex = paragraphEndings[2]; // After 3rd paragraph
+                                } else if (paragraphEndings.length >= 2) {
+                                    insertAfterParagraphIndex = paragraphEndings[1]; // After 2nd paragraph
+                                } else {
+                                    insertAfterParagraphIndex = paragraphEndings[0]; // After 1st paragraph
+                                }
+                                baseHTML = baseHTML.substring(0, insertAfterParagraphIndex + 4) + videoEmbedHTML + baseHTML.substring(insertAfterParagraphIndex + 4);
+                            } else {
+                                baseHTML += videoEmbedHTML; // Fallback if no paragraphs
+                            }
+                        }
+                        processedPageContent = baseHTML;
+                    }
+                    // End of content preparation
                     
                     reviewContainer.innerHTML = `
                         <div class="review-container">
@@ -732,7 +793,7 @@
                                 </div>
                                 
                                 <div class="review-content">
-                                    ${(review.content || review.excerpt).replace('</p>', `</p><div class="review-image-container"><img src="${review.image2}" alt="${review.title} - Gameplay" class="review-content-image lightbox-image" onclick="openLightbox(this.src, this.alt)" onerror="this.style.display='none';" style="cursor: pointer;"></div>`)}
+                                    ${processedPageContent}
                                 </div>
                                 
                                 <style>

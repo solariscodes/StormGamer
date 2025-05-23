@@ -27,6 +27,23 @@
     #news-container .article-wrapper {
         grid-template-columns: 1fr;
     }
+    
+    .article-content {
+        padding: 0 1rem;
+    }
+    
+    .article-title {
+        font-size: 2rem;
+    }
+    
+    .article-title-no-image {
+        font-size: 2rem;
+    }
+    
+    .article-excerpt {
+        font-size: 1.15rem;
+        padding: 1rem 1.2rem;
+    }
 }
 
 .full-article {
@@ -34,7 +51,7 @@
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    padding: 1.5rem;
+    padding: 2rem;
     width: 100%;
     box-sizing: border-box;
     margin: 0;
@@ -127,14 +144,17 @@
 }
 
 .article-excerpt {
-    font-size: 1.2rem;
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+    line-height: 1.7;
+    margin-bottom: 2rem;
     color: var(--gray-text);
     background-color: rgba(255, 255, 255, 0.05);
     border-left: 3px solid var(--accent-color);
-    padding: 1rem 1.5rem;
+    padding: 1.2rem 1.8rem;
     border-radius: 0 8px 8px 0;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .article-excerpt p {
@@ -190,11 +210,117 @@
     line-height: 1.8;
     color: var(--light-text);
     margin-bottom: 2rem;
-    text-align: justify;
+    text-align: left;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 1.5rem;
+    word-spacing: 0.05em;
+}
+
+/* Add better spacing between paragraphs */
+.article-content > * + * {
+    margin-top: 1.5em;
+}
+
+/* Add proper text selection styling */
+.article-content ::selection {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+/* Improve list styling */
+.article-content ul,
+.article-content ol {
+    padding-left: 2rem;
+    margin-bottom: 1.8rem;
+    max-width: 70ch;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.article-content li {
+    margin-bottom: 0.8rem;
+    line-height: 1.7;
+}
+
+/* Add styling for blockquotes */
+.article-content blockquote {
+    border-left: 4px solid var(--accent-color);
+    padding: 1rem 1.5rem;
+    margin: 2rem auto;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+    max-width: 70ch;
+}
+
+.article-content blockquote p {
+    margin-bottom: 0;
+}
+
+/* Add styling for code blocks */
+.article-content pre,
+.article-content code {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    font-family: monospace;
+    padding: 0.2em 0.4em;
+}
+
+.article-content pre {
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1.5rem auto;
+    max-width: 70ch;
 }
 
 .article-content p {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.8rem;
+    line-height: 1.9;
+    font-size: 1.15rem;
+    letter-spacing: 0.01em;
+    max-width: 70ch;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.article-content h2 {
+    margin-top: 2.5rem;
+    margin-bottom: 1.2rem;
+    font-size: 1.8rem;
+    color: var(--secondary-color);
+}
+
+.article-content h3 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    color: var(--accent-color);
+}
+
+/* YouTube Video Embed Styles */
+.article-video-container {
+    margin: 2rem 0;
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.article-video-container iframe {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border: none;
+    display: block;
+}
+
+.video-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.2rem;
+    margin-bottom: 0.8rem;
+    color: var(--secondary-color);
 }
 
 .article-content h2, 
@@ -405,10 +531,32 @@
     
     .article-content {
         font-size: 1rem;
+        padding: 0 1rem;
     }
     
     .full-article {
         padding: 1.5rem;
+    }
+    
+    .article-content p {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        letter-spacing: 0.005em;
+        margin-bottom: 1.5rem;
+    }
+    
+    .article-content h2 {
+        font-size: 1.6rem;
+        margin-top: 2rem;
+    }
+    
+    .article-content h3 {
+        font-size: 1.4rem;
+    }
+    
+    .article-excerpt {
+        padding: 1rem 1.2rem;
+        font-size: 1.15rem;
     }
 }
 
@@ -426,5 +574,47 @@
     .article-footer {
         flex-direction: column;
         gap: 1rem;
+    }
+    
+    .article-content {
+        padding: 0;
+    }
+    
+    .article-content p {
+        font-size: 1rem;
+        line-height: 1.7;
+        margin-bottom: 1.2rem;
+        max-width: 100%;
+    }
+    
+    .article-content h2 {
+        font-size: 1.4rem;
+        margin-top: 1.8rem;
+        margin-bottom: 1rem;
+    }
+    
+    .article-content h3 {
+        font-size: 1.2rem;
+        margin-top: 1.5rem;
+    }
+    
+    .article-excerpt {
+        font-size: 1rem;
+        padding: 0.8rem 1rem;
+        line-height: 1.6;
+    }
+    
+    .full-article {
+        padding: 1.2rem 0.8rem;
+    }
+    
+    .article-content ul,
+    .article-content ol {
+        padding-left: 1.5rem;
+    }
+    
+    .article-content blockquote {
+        padding: 0.8rem 1rem;
+        margin: 1.5rem auto;
     }
 }

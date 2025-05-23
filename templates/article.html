@@ -162,6 +162,18 @@
                     {% else %}
                         <p>No content available for this article.</p>
                     {% endif %}
+                    
+                    {% if article.youtube %}
+                    <div class="article-video-container">
+                        <h3 class="video-title">Featured Video</h3>
+                        <iframe 
+                            src="{{ article.youtube | replace('watch?v=', 'embed/') }}" 
+                            title="{{ article.title }}" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    {% endif %}
                 </div>
                 
                 <div class="article-footer">

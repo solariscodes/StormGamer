@@ -283,40 +283,18 @@
                     
                     <h3>Favorite Games</h3>
                     <div class="favorite-games">
-                        {% set games = {
-                            'Chief Editor': [('The Witcher 3', 'witcher3', '2c0b65'), ('Skyrim', 'skyrim', '3a5a83'), ('Mass Effect 2', 'masseffect2', '1e5770'), ('Baldur\'s Gate 3', 'baldursgate3', '651e1e')],
-                            'Content Editor': [('Overwatch', 'overwatch', '2c65b0'), ('League of Legends', 'leagueoflegends', '1e7057'), ('Valorant', 'valorant', '651e1e'), ('Apex Legends', 'apexlegends', 'b02c65')],
-                            'Writer': [('Civilization VI', 'civ6', '651e57'), ('Total War: Warhammer', 'warhammer', '1e6557'), ('Age of Empires II', 'ageofempires2', '653a1e'), ('Stellaris', 'stellaris', '1e1e65')],
-                            'Social Media': [('Animal Crossing', 'animalcrossing', '2c652d'), ('The Legend of Zelda', 'zelda', '65571e'), ('Stardew Valley', 'stardewvalley', '2d652c'), ('Hades', 'hades', '651e1e')],
-                            'Video Editor': [('Super Mario World', 'mario', '651e1e'), ('Chrono Trigger', 'chronotrigger', '1e4865'), ('Final Fantasy VII', 'ff7', '2d2c65'), ('Castlevania: SOTN', 'castlevania', '651e57')],
-                            'Proofreader': [('Final Fantasy XIV', 'ff14', '2c2c65'), ('Persona 5', 'persona5', '651e1e'), ('Nier: Automata', 'nier', '2d2d33'), ('Dragon Quest XI', 'dragonquest11', '2c6555')]
-                        }.get(member.role, [('The Witcher 3', 'witcher3', '2c0b65'), ('Skyrim', 'skyrim', '3a5a83'), ('Mass Effect 2', 'masseffect2', '1e5770'), ('Baldur\'s Gate 3', 'baldursgate3', '651e1e')]) %}
+                        {% set games = [
+                            ('The Witcher 3: Wild Hunt', 'witcher3', '2c0b65'),
+                            ('The Legend of Zelda: Breath of the Wild', 'zelda-botw', '2c5a65'),
+                            ('Elden Ring', 'eldenring', '3a2a40'),
+                            ('Baldur\'s Gate 3', 'baldursgate3', '651e1e')
+                        ] %}
                         
                         {% set game_images = {
-                            'witcher3': 'https://upload.wikimedia.org/wikipedia/en/0/0c/Witcher_3_cover_art.jpg',
-                            'skyrim': 'https://upload.wikimedia.org/wikipedia/en/1/15/The_Elder_Scrolls_V_Skyrim_cover.png',
-                            'masseffect2': 'https://upload.wikimedia.org/wikipedia/en/0/05/MassEffect2_cover.PNG',
-                            'baldursgate3': 'https://upload.wikimedia.org/wikipedia/en/3/3a/Baldur%27s_Gate_3_cover_art.jpg',
-                            'overwatch': 'https://upload.wikimedia.org/wikipedia/en/5/51/Overwatch_cover_art.jpg',
-                            'leagueoflegends': 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/League_of_Legends_2019_vector.svg/800px-League_of_Legends_2019_vector.svg.png',
-                            'valorant': 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Valorant_logo_-_pink_color_version.svg/800px-Valorant_logo_-_pink_color_version.svg.png',
-                            'apexlegends': 'https://upload.wikimedia.org/wikipedia/en/thumb/d/db/Apex_legends_cover.jpg/220px-Apex_legends_cover.jpg',
-                            'civ6': 'https://upload.wikimedia.org/wikipedia/en/3/3b/Civilization_VI_cover_art.jpg',
-                            'warhammer': 'https://upload.wikimedia.org/wikipedia/en/0/02/Total_War_Warhammer_cover_art.jpg',
-                            'ageofempires2': 'https://upload.wikimedia.org/wikipedia/en/8/8e/Age_of_Empires_II_-_The_Age_of_Kings_Coverart.png',
-                            'stellaris': 'https://upload.wikimedia.org/wikipedia/en/9/94/Stellaris_cover_art.jpg',
-                            'animalcrossing': 'https://upload.wikimedia.org/wikipedia/en/1/1f/Animal_Crossing_New_Horizons.jpg',
-                            'zelda': 'https://upload.wikimedia.org/wikipedia/en/c/c6/The_Legend_of_Zelda_Breath_of_the_Wild.jpg',
-                            'stardewvalley': 'https://upload.wikimedia.org/wikipedia/en/f/fd/Logo_of_Stardew_Valley.png',
-                            'hades': 'https://upload.wikimedia.org/wikipedia/en/c/cc/Hades_cover_art.jpg',
-                            'mario': 'https://upload.wikimedia.org/wikipedia/en/3/32/Super_Mario_World_Coverart.png',
-                            'chronotrigger': 'https://upload.wikimedia.org/wikipedia/en/a/a7/Chrono_Trigger.jpg',
-                            'ff7': 'https://upload.wikimedia.org/wikipedia/en/c/c2/Final_Fantasy_VII_Box_Art.jpg',
-                            'castlevania': 'https://upload.wikimedia.org/wikipedia/en/0/0f/Castlevania_-_Symphony_of_the_Night_cover.png',
-                            'ff14': 'https://upload.wikimedia.org/wikipedia/en/6/6d/Final_Fantasy_XIV%2C_A_Realm_Reborn_box_cover.jpg',
-                            'persona5': 'https://upload.wikimedia.org/wikipedia/en/b/b0/Persona_5_cover_art.jpg',
-                            'nier': 'https://upload.wikimedia.org/wikipedia/en/2/21/Nier_Automata_cover_art.jpg',
-                            'dragonquest11': 'https://upload.wikimedia.org/wikipedia/en/4/4e/Dragon_Quest_XI_cover_art.jpg'
+                            'witcher3': url_for('static', filename='images/games/witcher3.jpg'),
+                            'zelda-botw': url_for('static', filename='images/games/zelda-botw.jpg'),
+                            'eldenring': url_for('static', filename='images/games/eldenring.jpg'),
+                            'baldursgate3': 'https://image.api.playstation.com/vulcan/ap/rnd/202302/2321/009802068a6d98637c696b0caa4803037a0f53fde637bd71.png'  # Direct link to BG3 image
                         } %}
                         
                         {% for game_name, game_id, game_color in games %}
