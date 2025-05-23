@@ -284,20 +284,20 @@
                     <h3>Favorite Games</h3>
                     <div class="favorite-games">
                         {% set games = [
-                            ('The Witcher 3: Wild Hunt', 'witcher3', '2c0b65'),
-                            ('The Legend of Zelda: Breath of the Wild', 'zelda-botw', '2c5a65'),
-                            ('Elden Ring', 'eldenring', '3a2a40'),
-                            ('Baldur\'s Gate 3', 'baldursgate3', '651e1e')
+                            ('The Witcher 3: Wild Hunt', 'witcher3'),
+                            ('The Legend of Zelda: Breath of the Wild', 'zelda-botw'),
+                            ('Elden Ring', 'eldenring'),
+                            ('Skyrim', 'skyrim')
                         ] %}
                         
                         {% set game_images = {
                             'witcher3': url_for('static', filename='images/games/witcher3.jpg'),
                             'zelda-botw': url_for('static', filename='images/games/zelda-botw.jpg'),
                             'eldenring': url_for('static', filename='images/games/eldenring.jpg'),
-                            'baldursgate3': 'https://image.api.playstation.com/vulcan/ap/rnd/202302/2321/009802068a6d98637c696b0caa4803037a0f53fde637bd71.png'  # Direct link to BG3 image
+                            'skyrim': url_for('static', filename='images/games/skyrim.png')
                         } %}
                         
-                        {% for game_name, game_id, game_color in games %}
+                        {% for game_name, game_id in games %}
                         <div class="game-item">
                             <a href="/search?q={{ game_name|urlencode }}" class="game-link" title="Search for {{ game_name }}">
                                 <img src="{{ game_images[game_id] }}" 
