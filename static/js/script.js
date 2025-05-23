@@ -179,6 +179,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Only include articles with images
         if (!article.full_image_url) return;
         
+        // Create excerpt from content if available
+        const excerpt = article.content ? 
+            (article.content.length > 120 ? article.content.substring(0, 120) + '...' : article.content) : 
+            'Read the full article for more details.';
+            
         card.innerHTML = `
             <div class="news-img-container">
                 <img src="${article.full_image_url}" alt="${title}" class="news-img">
@@ -188,6 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             <div class="news-content">
                 <h3 class="news-title">${title}</h3>
+                <p class="news-excerpt">${excerpt}</p>
                 <div class="news-meta">
                     <span class="news-date"><i class="far fa-newspaper"></i> ${editorLabel}</span>
                     <span class="share-icon" onclick="event.stopPropagation();"><i class="fas fa-share-alt"></i> Share</span>

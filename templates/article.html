@@ -121,21 +121,38 @@
     <main>
         <div class="article-container">
             <article class="full-article">
-                <div class="article-meta">
-                    <div class="article-date">
-                        {% if article.date %}
-                            <i class="far fa-calendar-alt"></i> {{ article.date }}
-                        {% endif %}
-                    </div>
-                </div>
-                
-                <h1 class="article-title">{{ article.title }}</h1>
-                
-                <div class="article-hero">
+                <div class="article-hero-container">
                     {% if article.full_image_url %}
-                        <img src="{{ article.full_image_url }}" alt="{{ article.title }}" class="article-image">
+                        <div class="article-header">
+                            <img src="{{ article.full_image_url }}" alt="{{ article.title }}" class="article-cover" onclick="openLightbox(this.src, this.alt)">
+                            <div class="article-header-overlay">
+                                <h1 class="article-title">{{ article.title }}</h1>
+                                <div class="article-meta-bar">
+                                    <div class="article-date">
+                                        {% if article.date %}
+                                            <i class="far fa-calendar-alt"></i> {{ article.date }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <h1 class="article-title-no-image">{{ article.title }}</h1>
+                        <div class="article-meta">
+                            <div class="article-date">
+                                {% if article.date %}
+                                    <i class="far fa-calendar-alt"></i> {{ article.date }}
+                                {% endif %}
+                            </div>
+                        </div>
                     {% endif %}
                 </div>
+                
+                {% if article.content %}
+                <div class="article-excerpt">
+                    <p>{{ article.content[:200] + '...' if article.content|length > 200 else article.content }}</p>
+                </div>
+                {% endif %}
                 
                 <div class="article-content">
                     {% if article.formatted_content %}
@@ -217,7 +234,122 @@
         </div>
     </main>
     
+    <script>
+        // Add lightbox functionality to all content images
+        document.addEventListener('DOMContentLoaded', function() {
+            const contentImages = document.querySelectorAll('.article-content img');
+            contentImages.forEach(img => {
+                img.style.cursor = 'pointer';
+                img.onclick = function() {
+                    openLightbox(this.src, this.alt);
+                };
+            });
+        });
+    </script>
+
 {% if not is_fragment|default(false) %}
+    <!-- Lightbox Modal -->
+    <div id="image-lightbox" class="lightbox">
+        <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+        <img class="lightbox-content" id="lightbox-img">
+        <div id="lightbox-caption"></div>
+    </div>
+
+    <style>
+        /* Lightbox styles */
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            padding-top: 50px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+        
+        .lightbox-content {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 80vh;
+            object-fit: contain;
+            animation: zoom 0.3s ease;
+        }
+        
+        @keyframes zoom {
+            from {transform: scale(0.8); opacity: 0;}
+            to {transform: scale(1); opacity: 1;}
+        }
+        
+        #lightbox-caption {
+            margin: auto;
+            width: 80%;
+            max-width: 700px;
+            text-align: center;
+            color: white;
+            padding: 10px 0;
+            height: 50px;
+            font-size: 1.1rem;
+        }
+        
+        .lightbox-close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        
+        .lightbox-close:hover,
+        .lightbox-close:focus {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+    </style>
+
+    <script>
+        // Lightbox functions
+        function openLightbox(imgSrc, imgAlt) {
+            const lightbox = document.getElementById('image-lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            const caption = document.getElementById('lightbox-caption');
+            
+            lightbox.style.display = 'block';
+            lightboxImg.src = imgSrc;
+            caption.innerHTML = imgAlt;
+            
+            // Prevent scrolling when lightbox is open
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeLightbox() {
+            document.getElementById('image-lightbox').style.display = 'none';
+            // Re-enable scrolling
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Close lightbox when clicking outside the image
+        document.addEventListener('click', function(event) {
+            const lightbox = document.getElementById('image-lightbox');
+            if (event.target === lightbox) {
+                closeLightbox();
+            }
+        });
+        
+        // Close lightbox with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeLightbox();
+            }
+        });
+    </script>
+    
     <footer>
         <div class="footer-content">
             <div class="footer-logo">

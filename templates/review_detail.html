@@ -27,10 +27,36 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         /* Review detail page styles */
+        .review-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: minmax(600px, 3fr) minmax(250px, 1fr);
+            gap: 2rem;
+        }
+        
         .review-detail-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
+            width: 100%;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            padding: 1.5rem;
+            box-sizing: border-box;
+            margin: 0;
+        }
+        
+        @media (max-width: 1000px) {
+            .review-container {
+                grid-template-columns: 1fr 300px;
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .review-container {
+                grid-template-columns: 1fr;
+            }
         }
         
         .review-header {
@@ -43,9 +69,14 @@
         
         .review-cover {
             width: 100%;
-            height: 400px;
+            height: 500px; /* Increased from 400px to 500px */
             object-fit: cover;
             display: block;
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+        
+        .review-cover:hover {
+            filter: brightness(1.1);
         }
         
         .review-header-overlay {
@@ -53,9 +84,42 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
-            padding: 2rem;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.8) 40%, rgba(0, 0, 0, 0.5) 70%, rgba(0, 0, 0, 0.2) 90%, transparent 100%);
+            padding: 3rem 2rem; /* Increased top/bottom padding */
             color: white;
+            min-height: 50%; /* Ensure overlay covers at least half the image */
+        }
+        
+        .review-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: block; /* Changed from inline-block to block for full width */
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            padding: 0.5rem 1rem;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-left: 4px solid var(--accent-color);
+            border-radius: 4px;
+            width: calc(100% - 2rem); /* Account for padding */
+            box-sizing: border-box;
+            word-wrap: break-word; /* Allow long words to break */
+            overflow-wrap: break-word;
+            hyphens: auto; /* Enable hyphenation */
+        }
+        
+        /* Adjust font size for smaller screens or very long titles */
+        @media (max-width: 768px) {
+            .review-title {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .review-title {
+                font-size: 1.5rem;
+            }
         }
         
         .review-meta-bar {
@@ -85,6 +149,23 @@
         .review-meta-details {
             display: flex;
             flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .review-meta-line {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .review-date {
+            font-size: 0.9rem;
+            color: #ffffff;
+        }
+        
+        .review-meta-separator {
+            font-size: 0.9rem;
+            color: #cccccc;
         }
         
         .review-author-name {
@@ -189,6 +270,7 @@
         .review-content {
             line-height: 1.8;
             color: var(--light-text);
+            text-align: justify;
         }
         
         .review-content p {
@@ -453,7 +535,7 @@
     </header>
     
     <main>
-        <div class="review-detail-container" id="review-container">
+        <div id="review-container">
             <div class="loading-spinner">
                 <div class="spinner"></div>
                 <p>Loading review...</p>
@@ -505,8 +587,50 @@
         </div>
     </footer>
     
+    <!-- Lightbox Modal -->
+    <div id="image-lightbox" class="lightbox">
+        <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+        <img class="lightbox-content" id="lightbox-img">
+        <div id="lightbox-caption"></div>
+    </div>
+
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     <script>
+        // Lightbox functions
+        function openLightbox(imgSrc, imgAlt) {
+            const lightbox = document.getElementById('image-lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            const caption = document.getElementById('lightbox-caption');
+            
+            lightbox.style.display = 'block';
+            lightboxImg.src = imgSrc;
+            caption.innerHTML = imgAlt;
+            
+            // Prevent scrolling when lightbox is open
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeLightbox() {
+            document.getElementById('image-lightbox').style.display = 'none';
+            // Re-enable scrolling
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Close lightbox when clicking outside the image
+        document.addEventListener('click', function(event) {
+            const lightbox = document.getElementById('image-lightbox');
+            if (event.target === lightbox) {
+                closeLightbox();
+            }
+        });
+        
+        // Close lightbox with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeLightbox();
+            }
+        });
+        
         document.addEventListener('DOMContentLoaded', function() {
             const reviewContainer = document.getElementById('review-container');
             
@@ -550,27 +674,6 @@
                     document.getElementById('twitter-title').content = `${review.title} Review - StormGamer`;
                     document.getElementById('twitter-description').content = review.excerpt;
                     
-                    // Format platforms as icons
-                    const platformIcons = {
-                        'PC': '<i class="fab fa-windows platform-pc" title="PC"></i>',
-                        'Windows': '<i class="fab fa-windows platform-pc" title="PC"></i>',
-                        'PlayStation': '<i class="fab fa-playstation platform-playstation" title="PlayStation"></i>',
-                        'PlayStation 5': '<i class="fab fa-playstation platform-playstation" title="PlayStation 5"></i>',
-                        'Xbox': '<i class="fab fa-xbox platform-xbox" title="Xbox"></i>',
-                        'Xbox Series X/S': '<i class="fab fa-xbox platform-xbox" title="Xbox Series X/S"></i>',
-                        'Switch': '<i class="fas fa-gamepad platform-switch" title="Nintendo Switch"></i>',
-                        'Nintendo Switch': '<i class="fas fa-gamepad platform-switch" title="Nintendo Switch"></i>',
-                        'Mobile': '<i class="fas fa-mobile-alt" title="Mobile"></i>'
-                    };
-                    
-                    // Format platforms
-                    let platformsHTML = '';
-                    if (review.platforms && review.platforms.length > 0) {
-                        platformsHTML = review.platforms.map(platform => {
-                            return platformIcons[platform] || `<span class="platform-tag">${platform}</span>`;
-                        }).join(' ');
-                    }
-                    
                     // Format date
                     const formattedDate = new Date(review.date).toLocaleDateString('en-US', {
                         year: 'numeric',
@@ -580,74 +683,200 @@
                     
                     // Create share URLs
                     const shareTitle = encodeURIComponent(`Check out this review of ${review.title} on StormGamer`);
-                    const shareUrl = encodeURIComponent(window.location.href);
+                    const shareUrl = encodeURIComponent(window.location.origin + '/review_detail?id=' + review.id);
                     const twitterShareUrl = `https://twitter.com/intent/tweet?text=${shareTitle}&url=${shareUrl}`;
                     const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`;
                     
-                    // Create author URL
+                    // Create author URL (converting to kebab case)
                     const authorUrl = `/team/${review.author.toLowerCase().replace(/\s+/g, '-')}`;
                     
-                    // Generate the review HTML
+                    // Update page title and meta tags
+                    document.getElementById('review-title').textContent = `${review.title} - StormGamer`;
+                    document.getElementById('og-title').content = `${review.title} - StormGamer`;
+                    document.getElementById('og-description').content = review.excerpt;
+                    document.getElementById('og-image').content = review.image;
+                    document.getElementById('twitter-title').content = `${review.title} - StormGamer`;
+                    document.getElementById('twitter-description').content = review.excerpt;
+                    document.getElementById('twitter-image').content = review.image;
+                    
                     reviewContainer.innerHTML = `
-                        <div class="review-detail-container">
-                            <div class="review-header">
-                                <img src="${review.image}" alt="${review.title}" class="review-cover" onerror="this.onerror=null; this.src='https://via.placeholder.com/1000x500?text=Game+Cover';">
-                                <div class="review-header-overlay">
-                                    <h1 class="review-title">${review.title}</h1>
-                                    <p class="review-excerpt">${review.excerpt}</p>
-                                     <div class="review-header-bottom">
-                                        <div class="review-score-container">
-                                            <div class="review-score-badge">${review.score}</div>
-                                            <span>out of 10</span>
-                                        </div>
-                                        <div class="review-author-card">
-                                            <img src="/static/images/team/${review.author.toLowerCase().split(' ')[0]}.avif" 
-                                                 onerror="this.onerror=null; this.src='/static/images/team/${review.author.toLowerCase().split(' ')[0]}.jpg'; this.onerror=function(){this.src='/static/images/team/placeholder.jpg';}" 
-                                                 alt="${review.author}" 
-                                                 class="review-author-photo">
-                                            <div class="review-meta-details">
-                                                <div class="review-meta-line">
-                                                    <span class="review-date">${formattedDate}</span>
-                                                    <span class="review-meta-separator">By</span>
-                                                    <a href="${authorUrl}" class="review-author-name">${review.author}</a>
+                        <div class="review-container">
+                            <div class="review-detail-container">
+                                <div class="review-header">
+                                    <img src="${review.image}" alt="${review.title}" class="review-cover lightbox-image" onclick="openLightbox(this.src, this.alt)" style="cursor: pointer;" onerror="this.onerror=null; this.src='https://via.placeholder.com/1000x500?text=Game+Cover';">
+                                    <div class="review-header-overlay">
+                                        <h1 class="review-title">${review.title}</h1>
+                                        <p class="review-excerpt">${review.excerpt}</p>
+                                         <div class="review-header-bottom">
+                                            <div class="review-score-container">
+                                                <div class="review-score-badge">${review.score}</div>
+                                                <span>out of 10</span>
+                                            </div>
+                                            <div class="review-author-card">
+                                                <img src="/static/images/team/${review.author.toLowerCase().split(' ')[0]}.avif" 
+                                                     onerror="this.onerror=null; this.src='/static/images/team/${review.author.toLowerCase().split(' ')[0]}.jpg'; this.onerror=function(){this.src='/static/images/team/placeholder.jpg';}" 
+                                                     alt="${review.author}" 
+                                                     class="review-author-photo">
+                                                <div class="review-meta-details">
+                                                    <div class="review-meta-line">
+                                                        <span class="review-date">${formattedDate}</span>
+                                                    </div>
+                                                    <div class="review-meta-line">
+                                                        <span class="review-meta-separator">By</span>
+                                                        <a href="${authorUrl}" class="review-author-name">${review.author}</a>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <div class="review-content">
-                                ${(review.content || review.excerpt).replace('</p>', `</p><div class="review-image-container"><img src="${review.image2}" alt="${review.title} - Gameplay" class="review-content-image" onerror="this.style.display='none';"></div>`)}
-                            </div>
-                            
-                            <style>
-                                .review-image-container {
-                                    margin: 2rem 0;
-                                    text-align: center;
-                                }
-                                .review-content-image {
-                                    max-width: 100%;
-                                    height: auto;
-                                    border-radius: 8px;
-                                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                                }
-                                @media (max-width: 768px) {
-                                    .review-content-image {
-                                        width: 100%;
+                                
+                                <div class="review-content">
+                                    ${(review.content || review.excerpt).replace('</p>', `</p><div class="review-image-container"><img src="${review.image2}" alt="${review.title} - Gameplay" class="review-content-image lightbox-image" onclick="openLightbox(this.src, this.alt)" onerror="this.style.display='none';" style="cursor: pointer;"></div>`)}
+                                </div>
+                                
+                                <style>
+                                    .review-image-container {
+                                        margin: 2rem 0;
+                                        text-align: center;
                                     }
-                                }
-                            </style>
+                                    .review-content-image {
+                                        max-width: 100%;
+                                        height: auto;
+                                        border-radius: 8px;
+                                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                                        transition: transform 0.3s ease, box-shadow 0.3s ease;
+                                    }
+                                    .review-content-image:hover {
+                                        transform: scale(1.02);
+                                        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+                                    }
+                                    @media (max-width: 768px) {
+                                        .review-content-image {
+                                            width: 100%;
+                                        }
+                                    }
+                                    
+                                    /* Lightbox styles */
+                                    .lightbox {
+                                        display: none;
+                                        position: fixed;
+                                        z-index: 1000;
+                                        padding-top: 50px;
+                                        left: 0;
+                                        top: 0;
+                                        width: 100%;
+                                        height: 100%;
+                                        overflow: auto;
+                                        background-color: rgba(0, 0, 0, 0.9);
+                                    }
+                                    
+                                    .lightbox-content {
+                                        margin: auto;
+                                        display: block;
+                                        max-width: 90%;
+                                        max-height: 80vh;
+                                        object-fit: contain;
+                                        animation: zoom 0.3s ease;
+                                    }
+                                    
+                                    @keyframes zoom {
+                                        from {transform: scale(0.8); opacity: 0;}
+                                        to {transform: scale(1); opacity: 1;}
+                                    }
+                                    
+                                    #lightbox-caption {
+                                        margin: auto;
+                                        width: 80%;
+                                        max-width: 700px;
+                                        text-align: center;
+                                        color: white;
+                                        padding: 10px 0;
+                                        height: 50px;
+                                        font-size: 1.1rem;
+                                    }
+                                    
+                                    .lightbox-close {
+                                        position: absolute;
+                                        top: 15px;
+                                        right: 35px;
+                                        color: #f1f1f1;
+                                        font-size: 40px;
+                                        font-weight: bold;
+                                        transition: 0.3s;
+                                        cursor: pointer;
+                                    }
+                                    
+                                    .lightbox-close:hover,
+                                    .lightbox-close:focus {
+                                        color: var(--accent-color);
+                                        text-decoration: none;
+                                    }
+                                </style>
+                                
+                                <div class="share-section">
+                                    <h3 class="share-title">Share this review</h3>
+                                    <div class="share-buttons-large">
+                                        <a href="${twitterShareUrl}" target="_blank" class="share-button-large twitter" title="Share on Twitter">
+                                            <i class="fab fa-twitter"></i>
+                                        </a>
+                                        <a href="${facebookShareUrl}" target="_blank" class="share-button-large facebook" title="Share on Facebook">
+                                            <i class="fab fa-facebook-f"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                             
-                            <div class="share-section">
-                                <h3 class="share-title">Share this review</h3>
-                                <div class="share-buttons-large">
-                                    <a href="${twitterShareUrl}" target="_blank" class="share-button-large twitter" title="Share on Twitter">
-                                        <i class="fab fa-twitter"></i>
+                            <div class="homepage-sidebar">
+                                <div class="ad-space">
+                                    <h3>Promote Here</h3>
+                                    <div class="ad-placeholder">
+                                        <i class="fas fa-ad"></i>
+                                        <p>Your Advertisement Could Be Here</p>
+                                        <a href="{{ url_for('advertise') }}" class="ad-cta-button">Contact Us</a>
+                                    </div>
+                                </div>
+                                
+                                <div class="exitlag-banner">
+                                    <h3>Optimize Your Gaming Experience</h3>
+                                    <a href="https://www.exitlag.com/refer/10150951" target="_blank">
+                                        <img src="{{ url_for('static', filename='images/banners/exitlag-banner.png') }}" alt="ExitLag - Optimize Your Gaming Experience" class="exitlag-banner-img">
                                     </a>
-                                    <a href="${facebookShareUrl}" target="_blank" class="share-button-large facebook" title="Share on Facebook">
-                                        <i class="fab fa-facebook-f"></i>
+                                </div>
+                                
+                                <div class="amazon-gaming-banner">
+                                    <h3>Gaming Deals on Amazon</h3>
+                                    <p class="banner-subtitle">Exclusive discounts on gaming gear & accessories</p>
+                                    <a href="https://amzn.to/4kom97F" target="_blank" class="banner-button">
+                                        Shop Now
+                                        <i class="fas fa-arrow-right"></i>
                                     </a>
+                                    <a href="https://amzn.to/4kom97F" target="_blank" class="banner-image-link">
+                                        <img src="{{ url_for('static', filename='images/banners/amazon-prime-banner.jpg') }}" alt="Amazon Gaming - Exclusive Deals on Gaming Gear" class="amazon-gaming-banner-img">
+                                    </a>
+                                </div>
+                                
+                                <div class="editorial-section">
+                                    <h3>Editorial Team</h3>
+                                    <div class="team-grid">
+                                        {% for member in editorial_team %}
+                                        {% set fallback_image = url_for('static', filename='images/team/' + member.name.split()[0].lower() + '.jpg') %}
+                                        <a href="{{ url_for('team_member', member_name=member.name|lower|replace(' ', '-')) }}" class="team-member-card" style="text-decoration: none; color: inherit;">
+                                            <div class="team-member-photo">
+                                                <img src="{{ url_for('static', filename='images/team/' + member.name.split()[0].lower() + '.avif') }}" 
+                                                     alt="{{ member.name }}"
+                                                     onerror="this.onerror=null; this.src='{{ fallback_image }}';">
+                                            </div>
+                                            <div class="team-member-details">
+                                                <h4>{{ member.name }}</h4>
+                                                <span class="team-member-role">{{ member.role }}</span>
+                                            </div>
+                                        </a>
+                                        {% endfor %}
+                                    </div>
+                                    <div style="text-align: center; margin-top: 1.5rem;">
+                                        <a href="{{ url_for('team') }}" class="ad-cta-button">Meet Our Team</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -657,10 +886,9 @@
                     console.error('Error loading review:', error);
                     reviewContainer.innerHTML = `
                         <div class="error-message" style="text-align: center; padding: 2rem;">
-                            <p>Failed to load review. Please try again later.</p>
-                            <button onclick="window.location.reload()" class="read-more" style="margin-top: 1rem;">
-                                <i class="fas fa-sync-alt"></i> Retry
-                            </button>
+                            <h2>Error Loading Review</h2>
+                            <p>${error.message}</p>
+                            <a href="/reviews" class="read-more">Browse All Reviews</a>
                         </div>
                     `;
                 });
