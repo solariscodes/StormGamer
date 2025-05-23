@@ -283,24 +283,105 @@
                     
                     <h3>Favorite Games</h3>
                     <div class="favorite-games">
-                        {% set games = [
-                            ('The Witcher 3: Wild Hunt', 'witcher3'),
-                            ('The Legend of Zelda: Breath of the Wild', 'zelda-botw'),
-                            ('Elden Ring', 'eldenring'),
-                            ('Skyrim', 'skyrim')
-                        ] %}
-                        
-                        {% set game_images = {
+                        {# Define all available game images #}
+                        {% set all_game_images = {
                             'witcher3': url_for('static', filename='images/games/witcher3.jpg'),
                             'zelda-botw': url_for('static', filename='images/games/zelda-botw.jpg'),
+                            'zelda': url_for('static', filename='images/games/zelda.jpg'),
                             'eldenring': url_for('static', filename='images/games/eldenring.jpg'),
-                            'skyrim': url_for('static', filename='images/games/skyrim.png')
+                            'skyrim': url_for('static', filename='images/games/skyrim.png'),
+                            'ff7': url_for('static', filename='images/games/ff7.jpg'),
+                            'chronotrigger': url_for('static', filename='images/games/chronotrigger.jpg'),
+                            'persona5': url_for('static', filename='images/games/persona5.jpg'),
+                            'nier': url_for('static', filename='images/games/nier.jpg'),
+                            'mario': url_for('static', filename='images/games/mario.png'),
+                            'animalcrossing': url_for('static', filename='images/games/animalcrossing.jpg'),
+                            'stardewvalley': url_for('static', filename='images/games/stardewvalley.png'),
+                            'masseffect2': url_for('static', filename='images/games/masseffect2.PNG'),
+                            'overwatch': url_for('static', filename='images/games/overwatch.jpg'),
+                            'hades': url_for('static', filename='images/games/hades.jpg'),
+                            'civ6': url_for('static', filename='images/games/civ6.jpg')
                         } %}
+                        
+                        {# Define favorite games by role #}
+                        {% if member.role == 'Chief Editor' %}
+                            {# RPG specialist #}
+                            {% set games = [
+                                ('The Witcher 3: Wild Hunt', 'witcher3'),
+                                ('Skyrim', 'skyrim'),
+                                ('Final Fantasy VII', 'ff7'),
+                                ('Elden Ring', 'eldenring')
+                            ] %}
+                        {% elif member.role == 'Content Editor' %}
+                            {# Streamer and eSports commentator #}
+                            {% set games = [
+                                ('Overwatch', 'overwatch'),
+                                ('Hades', 'hades'),
+                                ('The Legend of Zelda: Breath of the Wild', 'zelda-botw'),
+                                ('Elden Ring', 'eldenring')
+                            ] %}
+                        {% elif member.role == 'Writer' and member.name == 'Bruno Rodrigues' %}
+                            {# Strategy and simulation games expert #}
+                            {% set games = [
+                                ('Civilization VI', 'civ6'),
+                                ('Mass Effect 2', 'masseffect2'),
+                                ('Skyrim', 'skyrim'),
+                                ('Elden Ring', 'eldenring')
+                            ] %}
+                        {% elif member.role == 'Writer' and member.name == 'Fernanda Costa' %}
+                            {# FPS and competitive games enthusiast #}
+                            {% set games = [
+                                ('Overwatch', 'overwatch'),
+                                ('Hades', 'hades'),
+                                ('Mass Effect 2', 'masseffect2'),
+                                ('The Witcher 3: Wild Hunt', 'witcher3')
+                            ] %}
+                        {% elif member.role == 'Writer' and member.name == 'Thiago Almeida' %}
+                            {# Console and indie games specialist #}
+                            {% set games = [
+                                ('Stardew Valley', 'stardewvalley'),
+                                ('Hades', 'hades'),
+                                ('The Legend of Zelda: Breath of the Wild', 'zelda-botw'),
+                                ('Animal Crossing', 'animalcrossing')
+                            ] %}
+                        {% elif member.role == 'Social Media' %}
+                            {# Content creator and lifelong gamer #}
+                            {% set games = [
+                                ('Animal Crossing', 'animalcrossing'),
+                                ('The Legend of Zelda: Breath of the Wild', 'zelda-botw'),
+                                ('Stardew Valley', 'stardewvalley'),
+                                ('The Witcher 3: Wild Hunt', 'witcher3')
+                            ] %}
+                        {% elif member.role == 'Video Editor' %}
+                            {# YouTuber and retro games expert #}
+                            {% set games = [
+                                ('Chrono Trigger', 'chronotrigger'),
+                                ('Super Mario World', 'mario'),
+                                ('The Legend of Zelda', 'zelda'),
+                                ('Final Fantasy VII', 'ff7')
+                            ] %}
+                        {% elif member.role == 'Proofreader' %}
+                            {# Translator and JRPG fan #}
+                            {% set games = [
+                                ('Persona 5', 'persona5'),
+                                ('NieR: Automata', 'nier'),
+                                ('Final Fantasy VII', 'ff7'),
+                                ('Chrono Trigger', 'chronotrigger')
+                            ] %}
+                        {% else %}
+                            {# Default games as fallback #}
+                            {% set games = [
+                                ('The Witcher 3: Wild Hunt', 'witcher3'),
+                                ('The Legend of Zelda: Breath of the Wild', 'zelda-botw'),
+                                ('Elden Ring', 'eldenring'),
+                                ('Skyrim', 'skyrim')
+                            ] %}
+                        {% endif %}
                         
                         {% for game_name, game_id in games %}
                         <div class="game-item">
                             <a href="/search?q={{ game_name|urlencode }}" class="game-link" title="Search for {{ game_name }}">
-                                <img src="{{ game_images[game_id] }}" 
+                                <img src="{{ all_game_images[game_id] }}" 
                                      alt="{{ game_name }}"
                                      style="object-fit: cover; width: 80px; height: 80px;">
                                 <span>{{ game_name }}</span>
